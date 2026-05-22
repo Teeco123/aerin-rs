@@ -30,6 +30,26 @@
           default = pkgs.mkShell {
             buildInputs = packages;
             env.RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";
+            LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
+              pkgs.wayland
+              pkgs.libxkbcommon
+
+              pkgs.mesa
+              pkgs.libglvnd
+              pkgs.libGL
+              pkgs.libgbm
+
+              pkgs.wayland
+              pkgs.wayland-protocols
+              pkgs.libxkbcommon
+
+              pkgs.libdrm
+              pkgs.libX11
+              pkgs.libXrandr
+              pkgs.libXi
+              pkgs.libXcursor
+              pkgs.libXinerama
+            ];
           };
         };
       }
