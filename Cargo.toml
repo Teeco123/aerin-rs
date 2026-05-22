@@ -9,3 +9,4 @@ members = [
 ]
 
 [dependencies]
+app = { path = "crates/app" }
