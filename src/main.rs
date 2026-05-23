@@ -1,4 +1,4 @@
-use app::app::App;
+use app::App;
 
 fn main() {
     App::run();
