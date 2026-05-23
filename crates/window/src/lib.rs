@@ -1,39 +1,51 @@
 use std::num::NonZeroU32;
 
+use glow::HasContext;
 use glutin::{
     config::ConfigTemplateBuilder,
-    context::{ContextApi, ContextAttributesBuilder, Version},
+    context::{ContextApi, ContextAttributesBuilder, PossiblyCurrentContext, Version},
     display::Display,
     prelude::{GlDisplay, NotCurrentGlContext},
-    surface::{SurfaceAttributesBuilder, WindowSurface},
+    surface::{GlSurface, Surface, SurfaceAttributesBuilder, WindowSurface},
 };
 use winit::{
     application::ApplicationHandler,
+    dpi::LogicalSize,
     event_loop::{ControlFlow, EventLoop},
     raw_window_handle::{HasDisplayHandle, HasWindowHandle},
     window::Window,
 };
 
-pub struct WinitApp {
+struct WinitApp {
     window: Option<Window>,
+    surface: Option<Surface<WindowSurface>>,
+    context: Option<PossiblyCurrentContext>,
+    gl: Option<glow::Context>,
 }
 
 impl WinitApp {
     fn new() -> Self {
-        Self { window: None }
+        Self {
+            window: None,
+            surface: None,
+            context: None,
+            gl: None,
+        }
     }
 }
 
 impl ApplicationHandler for WinitApp {
     fn resumed(&mut self, event_loop: &winit::event_loop::ActiveEventLoop) {
         println!("winit resumed");
-        let winit_window_attributes = Window::default_attributes();
+        let winit_window_attributes = Window::default_attributes()
+            .with_title("dupa")
+            .with_inner_size(LogicalSize::new(800, 800));
         let window = event_loop.create_window(winit_window_attributes).unwrap();
 
         let raw_window_handle = window.window_handle().unwrap();
         let raw_display_handle = window.display_handle().unwrap();
 
-        let preference = glutin::display::DisplayApiPreference::Egl;
+        let preference = glutin::display::DisplayApiPreference::EglThenGlx(Box::new(|_| {}));
 
         let gl_display = unsafe { Display::new(raw_display_handle.as_raw(), preference).unwrap() };
 
@@ -70,6 +82,17 @@ impl ApplicationHandler for WinitApp {
         };
 
         let context = not_current.make_current(&surface).unwrap();
+
+        let gl = unsafe {
+            glow::Context::from_loader_function(|s| {
+                gl_display.get_proc_address(&std::ffi::CString::new(s).unwrap()) as *const _
+            })
+        };
+
+        self.window = Some(window);
+        self.surface = Some(surface);
+        self.context = Some(context);
+        self.gl = Some(gl);
     }
     fn window_event(
         &mut self,
@@ -77,6 +100,23 @@ impl ApplicationHandler for WinitApp {
         window_id: winit::window::WindowId,
         event: winit::event::WindowEvent,
     ) {
+        match event {
+            winit::event::WindowEvent::RedrawRequested => {
+                let gl = self.gl.as_ref().unwrap();
+
+                unsafe {
+                    gl.clear_color(0.0, 0.0, 0.0, 1.0);
+                    gl.clear(glow::COLOR_BUFFER_BIT);
+                }
+
+                self.surface
+                    .as_ref()
+                    .unwrap()
+                    .swap_buffers(self.context.as_ref().unwrap())
+                    .unwrap();
+            }
+            _ => {}
+        }
     }
 }
 

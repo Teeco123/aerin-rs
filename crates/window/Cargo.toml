@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 winit = { version = "0.30" }
 glutin = { version = "0.32" }
+glow = { version = "0.17" }
