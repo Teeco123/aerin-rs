@@ -1,10 +1,18 @@
-use window::run_winit;
+use window::Window;
 
-pub struct App;
+pub struct App {
+    window: Window,
+}
 
 impl App {
-    pub fn run() {
-        println!("app run");
-        run_winit();
+    pub fn new() -> Self {
+        Self {
+            window: Window::new(),
+        }
+    }
+    pub fn run(&mut self) {
+        println!("App run");
+
+        self.window.run();
     }
 }

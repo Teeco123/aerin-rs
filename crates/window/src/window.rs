@@ -1,0 +1,82 @@
+use std::fs;
+
+use winit::{
+    application::ApplicationHandler,
+    dpi::LogicalSize,
+    event::WindowEvent,
+    event_loop::{ControlFlow, EventLoop},
+    raw_window_handle::{DisplayHandle, HasDisplayHandle, HasWindowHandle, WindowHandle},
+    window::Window as WinitWindow,
+};
+
+use crate::renderer::Renderer;
+
+pub struct Window {
+    window: Option<WinitWindow>,
+    pub renderer: Option<Renderer>,
+}
+
+impl Window {
+    pub fn new() -> Self {
+        Self {
+            window: None,
+            renderer: Some(Renderer::new()),
+        }
+    }
+    pub fn run(&mut self) {
+        println!("run_event_loop");
+
+        let event_loop = EventLoop::new().unwrap();
+        event_loop.set_control_flow(ControlFlow::Poll);
+        let _ = event_loop.run_app(self);
+    }
+    pub fn get_window_handle(&self) -> WindowHandle<'_> {
+        self.window.as_ref().unwrap().window_handle().unwrap()
+    }
+    pub fn get_display_handle(&self) -> DisplayHandle<'_> {
+        self.window.as_ref().unwrap().display_handle().unwrap()
+    }
+}
+
+impl ApplicationHandler for Window {
+    fn resumed(&mut self, event_loop: &winit::event_loop::ActiveEventLoop) {
+        println!("Winit App resumed");
+        let winit_window_attr = WinitWindow::default_attributes()
+            .with_title("title")
+            .with_inner_size(LogicalSize::new(800, 800));
+
+        let window = event_loop.create_window(winit_window_attr).unwrap();
+        self.window = Some(window);
+
+        let wh = self.window.as_ref().unwrap().window_handle().unwrap();
+        let dh = self.window.as_ref().unwrap().display_handle().unwrap();
+        self.renderer.as_mut().unwrap().create(wh, dh);
+
+        let vertex_shader_source: String =
+            fs::read_to_string("shaders/vertex.glsl").expect("failed to load file");
+
+        let fragment_shader_source: String =
+            fs::read_to_string("shaders/frag.glsl").expect("failed to load file");
+
+        let vertex_shader: &str = &vertex_shader_source;
+        let fragment_shader: &str = &fragment_shader_source;
+
+        self.renderer
+            .as_ref()
+            .unwrap()
+            .load_shader(vertex_shader, fragment_shader);
+    }
+    fn window_event(
+        &mut self,
+        event_loop: &winit::event_loop::ActiveEventLoop,
+        window_id: winit::window::WindowId,
+        event: winit::event::WindowEvent,
+    ) {
+        match event {
+            WindowEvent::RedrawRequested => {
+                self.renderer.as_ref().unwrap().draw();
+            }
+            _ => {}
+        }
+    }
+}
