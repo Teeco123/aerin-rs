@@ -1,6 +1,6 @@
-use std::num::NonZeroU32;
+use std::{collections::HashMap, num::NonZeroU32};
 
-use glow::{Context, FRAGMENT_SHADER, HasContext, VERTEX_SHADER};
+use glow::{Context, FRAGMENT_SHADER, HasContext, Program, VERTEX_SHADER};
 use glutin::{
     config::ConfigTemplateBuilder,
     context::{ContextApi, ContextAttributesBuilder, PossiblyCurrentContext, Version},
@@ -10,10 +10,27 @@ use glutin::{
 };
 use winit::raw_window_handle::{DisplayHandle, WindowHandle};
 
+struct VertexShader {
+    r#type: u32,
+    source: String,
+}
+
+struct FragmentShader {
+    r#type: u32,
+    source: String,
+}
+
+pub struct ShaderSource {
+    vertex_shader: VertexShader,
+    fragment_shader: FragmentShader,
+}
+
 pub struct Renderer {
     surface: Option<Surface<WindowSurface>>,
     context: Option<PossiblyCurrentContext>,
     gl: Option<Context>,
+    shaders_sources: HashMap<String, ShaderSource>,
+    programs: HashMap<String, Program>,
 }
 
 impl Renderer {
@@ -22,6 +39,8 @@ impl Renderer {
             surface: None,
             context: None,
             gl: None,
+            shaders_sources: HashMap::new(),
+            programs: HashMap::new(),
         }
     }
     pub fn create(&mut self, window_handle: WindowHandle<'_>, display_handle: DisplayHandle<'_>) {
@@ -76,6 +95,8 @@ impl Renderer {
     pub fn draw(&self) {
         let gl = self.gl.as_ref().unwrap();
 
+        self.use_shader("triangle".to_string());
+
         unsafe {
             gl.clear(glow::COLOR_BUFFER_BIT);
             gl.draw_arrays(glow::TRIANGLES, 0, 3);
@@ -88,51 +109,87 @@ impl Renderer {
             .unwrap();
     }
 
-    pub fn load_shader(&self, vertex_shader: &str, fragment_shader: &str) {
+    pub fn load_shader(&mut self, name: String, vertex_shader: String, fragment_shader: String) {
+        let shader = ShaderSource {
+            vertex_shader: VertexShader {
+                r#type: VERTEX_SHADER,
+                source: vertex_shader,
+            },
+            fragment_shader: FragmentShader {
+                r#type: FRAGMENT_SHADER,
+                source: fragment_shader,
+            },
+        };
+        self.shaders_sources.insert(name, shader);
+    }
+
+    pub fn compile_shaders(&mut self) {
         println!("load_shader");
         let gl = self.gl.as_ref().unwrap();
 
         unsafe {
-            let vertex_array = gl
-                .create_vertex_array()
-                .expect("Cannot create vertex array");
-            gl.bind_vertex_array(Some(vertex_array));
+            for (name, shader) in self.shaders_sources.iter() {
+                let vertex_array = gl
+                    .create_vertex_array()
+                    .expect("Cannot create vertex array");
+                gl.bind_vertex_array(Some(vertex_array));
 
-            let program = gl.create_program().expect("Cannot create program");
+                let program = gl.create_program().expect("Cannot create program");
+                let mut shaders = Vec::with_capacity(self.shaders_sources.len());
 
-            let shader_sources = [
-                (VERTEX_SHADER, vertex_shader),
-                (FRAGMENT_SHADER, fragment_shader),
-            ];
+                let vertex_shader = gl
+                    .create_shader(shader.vertex_shader.r#type)
+                    .expect("Cannot create vertex shader");
+                gl.shader_source(
+                    vertex_shader,
+                    &format!("{}\n{}", "#version 410", shader.vertex_shader.source),
+                );
 
-            let mut shaders = Vec::with_capacity(shader_sources.len());
+                let fragment_shader = gl
+                    .create_shader(shader.fragment_shader.r#type)
+                    .expect("Cannot create fragment shader");
+                gl.shader_source(
+                    fragment_shader,
+                    &format!("{}\n{}", "#version 410", shader.fragment_shader.source),
+                );
 
-            for (shader_type, shader_source) in shader_sources.iter() {
-                let shader = gl
-                    .create_shader(*shader_type)
-                    .expect("Cannot create shader");
-                gl.shader_source(shader, &format!("{}\n{}", "#version 410", shader_source));
-                gl.compile_shader(shader);
-
-                if !gl.get_shader_compile_status(shader) {
-                    panic!("{}", gl.get_shader_info_log(shader));
+                gl.compile_shader(vertex_shader);
+                if !gl.get_shader_compile_status(vertex_shader) {
+                    panic!("{}", gl.get_shader_compile_status(vertex_shader))
                 }
-                gl.attach_shader(program, shader);
-                shaders.push(shader);
-            }
 
-            gl.link_program(program);
-            if !gl.get_program_link_status(program) {
-                panic!("{}", gl.get_program_info_log(program));
-            }
+                gl.compile_shader(fragment_shader);
+                if !gl.get_shader_compile_status(fragment_shader) {
+                    panic!("{}", gl.get_shader_compile_status(fragment_shader))
+                }
 
-            for shader in shaders {
-                gl.detach_shader(program, shader);
-                gl.delete_shader(shader);
-            }
+                gl.attach_shader(program, vertex_shader);
+                gl.attach_shader(program, fragment_shader);
 
-            gl.use_program(Some(program));
-            gl.clear_color(0.0, 0.0, 0.0, 1.0);
+                shaders.push(vertex_shader);
+                shaders.push(fragment_shader);
+
+                gl.link_program(program);
+
+                if !gl.get_program_link_status(program) {
+                    panic!("{}", gl.get_program_info_log(program));
+                }
+
+                for shader in shaders {
+                    gl.detach_shader(program, shader);
+                    gl.delete_shader(shader);
+                }
+
+                self.programs.insert(name.to_string(), program);
+            }
+        }
+    }
+
+    pub fn use_shader(&self, name: String) {
+        let gl = self.gl.as_ref().unwrap();
+        let program = self.programs.get(&name).unwrap();
+        unsafe {
+            gl.use_program(Some(*program));
         }
     }
 }
