@@ -1,7 +1,6 @@
 use std::fs;
 
-use app::App;
-use window::WindowSpecs;
+use aerin_rs::{app::App, window::WindowSpecs};
 
 fn main() {
     let specs = WindowSpecs {

@@ -3,11 +3,7 @@ name = "aerin-rs"
 version = "0.1.0"
 edition = "2024"
 
-[workspace]
-members = [
-    "crates/*",
-]
-
 [dependencies]
-app = { path = "crates/app" }
-window = { path = "crates/window" }
+winit = { version = "0.30" }
+glutin = { version = "0.32" }
+glow = { version = "0.17" }

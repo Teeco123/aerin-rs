@@ -1,5 +1,3 @@
-use std::fs;
-
 use winit::{
     application::ApplicationHandler,
     dpi::LogicalSize,
@@ -9,7 +7,7 @@ use winit::{
     window::Window as WinitWindow,
 };
 
-use crate::renderer::Renderer;
+use super::renderer::Renderer;
 
 pub struct WindowSpecs {
     pub title: &'static str,

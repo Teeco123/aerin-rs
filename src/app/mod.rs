@@ -1,4 +1,4 @@
-use window::{Window, WindowSpecs};
+use crate::window::{Window, WindowSpecs};
 
 pub struct App {
     pub window: Window,
