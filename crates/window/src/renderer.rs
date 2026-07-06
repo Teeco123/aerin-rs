@@ -187,7 +187,10 @@ impl Renderer {
 
     pub fn use_shader(&self, name: String) {
         let gl = self.gl.as_ref().unwrap();
-        let program = self.programs.get(&name).unwrap();
+        let program = self
+            .programs
+            .get(&name)
+            .unwrap_or_else(|| panic!("Program '{}' was not found!", name));
         unsafe {
             gl.use_program(Some(*program));
         }

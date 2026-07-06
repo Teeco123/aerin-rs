@@ -34,18 +34,6 @@ impl Window {
     pub fn run(&mut self) {
         println!("run_event_loop");
 
-        let vertex_shader_source: String =
-            fs::read_to_string("shaders/vertex.glsl").expect("failed to load file");
-
-        let fragment_shader_source: String =
-            fs::read_to_string("shaders/frag.glsl").expect("failed to load file");
-
-        self.renderer.as_mut().unwrap().load_shader(
-            "triangle".to_string(),
-            vertex_shader_source,
-            fragment_shader_source,
-        );
-
         let event_loop = EventLoop::new().unwrap();
         event_loop.set_control_flow(ControlFlow::Poll);
         let _ = event_loop.run_app(self);

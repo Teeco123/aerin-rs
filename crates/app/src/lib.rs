@@ -1,7 +1,7 @@
 use window::{Window, WindowSpecs};
 
 pub struct App {
-    window: Window,
+    pub window: Window,
 }
 
 impl App {
