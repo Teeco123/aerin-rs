@@ -11,15 +11,23 @@ use winit::{
 
 use crate::renderer::Renderer;
 
+pub struct WindowSpecs {
+    pub title: &'static str,
+    pub width: i32,
+    pub height: i32,
+}
+
 pub struct Window {
     window: Option<WinitWindow>,
+    window_specs: Option<WindowSpecs>,
     pub renderer: Option<Renderer>,
 }
 
 impl Window {
-    pub fn new() -> Self {
+    pub fn new(window_specs: WindowSpecs) -> Self {
         Self {
             window: None,
+            window_specs: Some(window_specs),
             renderer: Some(Renderer::new()),
         }
     }
@@ -53,9 +61,11 @@ impl Window {
 impl ApplicationHandler for Window {
     fn resumed(&mut self, event_loop: &winit::event_loop::ActiveEventLoop) {
         println!("Winit App resumed");
+        let window_specs = self.window_specs.as_ref().unwrap();
+
         let winit_window_attr = WinitWindow::default_attributes()
-            .with_title("title")
-            .with_inner_size(LogicalSize::new(800, 800));
+            .with_title(window_specs.title)
+            .with_inner_size(LogicalSize::new(window_specs.width, window_specs.height));
 
         let window = event_loop.create_window(winit_window_attr).unwrap();
         self.window = Some(window);
@@ -68,8 +78,8 @@ impl ApplicationHandler for Window {
     }
     fn window_event(
         &mut self,
-        event_loop: &winit::event_loop::ActiveEventLoop,
-        window_id: winit::window::WindowId,
+        _event_loop: &winit::event_loop::ActiveEventLoop,
+        _window_id: winit::window::WindowId,
         event: winit::event::WindowEvent,
     ) {
         match event {

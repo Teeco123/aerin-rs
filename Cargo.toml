@@ -10,3 +10,4 @@ members = [
 
 [dependencies]
 app = { path = "crates/app" }
+window = { path = "crates/window" }

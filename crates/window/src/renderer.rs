@@ -44,7 +44,7 @@ impl Renderer {
         }
     }
     pub fn create(&mut self, window_handle: WindowHandle<'_>, display_handle: DisplayHandle<'_>) {
-        let preference = DisplayApiPreference::EglThenGlx(Box::new(|_| {}));
+        let preference = DisplayApiPreference::Cgl;
         let gl_display = unsafe { Display::new(display_handle.as_raw(), preference).unwrap() };
 
         let template = ConfigTemplateBuilder::new();

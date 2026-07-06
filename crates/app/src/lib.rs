@@ -1,13 +1,13 @@
-use window::Window;
+use window::{Window, WindowSpecs};
 
 pub struct App {
     window: Window,
 }
 
 impl App {
-    pub fn new() -> Self {
+    pub fn new(window_specs: WindowSpecs) -> Self {
         Self {
-            window: Window::new(),
+            window: Window::new(window_specs),
         }
     }
     pub fn run(&mut self) {
