@@ -11,8 +11,6 @@ impl App {
         }
     }
     pub fn run(&mut self) {
-        println!("App run");
-
         self.window.run();
     }
 }

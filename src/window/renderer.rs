@@ -124,7 +124,6 @@ impl Renderer {
     }
 
     pub fn compile_shaders(&mut self) {
-        println!("load_shader");
         let gl = self.gl.as_ref().unwrap();
 
         unsafe {

@@ -30,8 +30,6 @@ impl Window {
         }
     }
     pub fn run(&mut self) {
-        println!("run_event_loop");
-
         let event_loop = EventLoop::new().unwrap();
         event_loop.set_control_flow(ControlFlow::Poll);
         let _ = event_loop.run_app(self);
@@ -46,7 +44,6 @@ impl Window {
 
 impl ApplicationHandler for Window {
     fn resumed(&mut self, event_loop: &winit::event_loop::ActiveEventLoop) {
-        println!("Winit App resumed");
         let window_specs = self.window_specs.as_ref().unwrap();
 
         let winit_window_attr = WinitWindow::default_attributes()
@@ -61,6 +58,9 @@ impl ApplicationHandler for Window {
         self.renderer.as_mut().unwrap().create(wh, dh);
 
         self.renderer.as_mut().unwrap().compile_shaders();
+    }
+    fn about_to_wait(&mut self, _event_loop: &winit::event_loop::ActiveEventLoop) {
+        self.window.as_ref().unwrap().request_redraw();
     }
     fn window_event(
         &mut self,
