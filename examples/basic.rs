@@ -1,6 +1,20 @@
 use std::fs;
 
-use aerin_rs::{app::App, window::WindowSpecs};
+use aerin_rs::{app::App, ecs::components::Component, window::WindowSpecs};
+
+pub struct Position {
+    x: f32,
+    y: f32,
+}
+
+impl Component for Position {
+    fn default() -> Self {
+        Self { x: 0.0, y: 0.0 }
+    }
+    fn type_of() -> &'static str {
+        "Position"
+    }
+}
 
 fn main() {
     let specs = WindowSpecs {
@@ -22,6 +36,22 @@ fn main() {
         vertex_shader_source,
         fragment_shader_source,
     );
+
+    app.ecs.register_component::<Position>();
+
+    println!("Alive: {}", app.ecs.alive_entities());
+    app.ecs.create_entity();
+    println!("Has component: {}", app.ecs.has_component::<Position>(0));
+    app.ecs.insert_component::<Position>(0);
+    println!("Has component: {}", app.ecs.has_component::<Position>(0));
+
+    println!("Alive: {}", app.ecs.alive_entities());
+    app.ecs.create_entity();
+    app.ecs.create_entity();
+    println!("Alive: {}", app.ecs.alive_entities());
+    app.ecs.destroy_entity(1);
+    println!("Alive: {}", app.ecs.alive_entities());
+    app.ecs.create_entity();
 
     app.run();
 }
