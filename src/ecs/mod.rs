@@ -30,6 +30,9 @@ impl ECS {
     pub fn alive_entities(&self) -> u32 {
         self.entity_manager.alive_entities()
     }
+    pub fn is_alive(&self, id: Entity) -> bool {
+        self.entity_manager.is_alive(id)
+    }
 
     pub fn register_component<T: Component + 'static>(&mut self) {
         self.component_manager.register_component::<T>();
