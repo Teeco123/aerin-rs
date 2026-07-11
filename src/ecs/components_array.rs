@@ -32,7 +32,13 @@ impl<T: Component> ComponentArray<T> {
         }
     }
     pub fn insert_component(&mut self, id: Entity) {
-        self.sparse[id as usize] = self.size;
+        let id_usize = id as usize;
+
+        if id_usize >= self.sparse.len() {
+            self.sparse.resize(self.sparse.len() + 5, usize::MAX);
+        }
+
+        self.sparse[id_usize] = self.size;
         self.dense.push(id);
         self.components.push(T::default());
         self.size += 1;
