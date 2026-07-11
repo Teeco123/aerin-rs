@@ -31,7 +31,9 @@ impl EntityManager {
         self.available.push_back(id);
     }
     pub fn update_signature(&mut self, id: Entity, r#type: ComponentType) {
-        self.signatures[id as usize] = r#type as u32;
+        if let Some(value) = self.signatures.get_mut(id as usize) {
+            *value = r#type as u32;
+        }
     }
 
     pub fn alive_entities(&self) -> u32 {

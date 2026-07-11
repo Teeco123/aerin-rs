@@ -35,7 +35,11 @@ impl ECS {
         self.component_manager.register_component::<T>();
     }
     pub fn insert_component<T: Component + 'static>(&mut self, id: Entity) {
-        let component_type = *self.component_manager.get_component_type::<T>();
+        let Some(component_type_ref) = self.component_manager.get_component_type::<T>() else {
+            eprintln!("Failed to get component type");
+            return;
+        };
+        let component_type = *component_type_ref;
         self.component_manager.insert_component::<T>(id);
         self.entity_manager.update_signature(id, component_type);
     }

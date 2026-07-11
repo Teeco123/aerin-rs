@@ -37,13 +37,15 @@ fn main() {
         fragment_shader_source,
     );
 
-    app.ecs.register_component::<Position>();
-    app.ecs.register_component::<Position>();
-
     println!("Alive: {}", app.ecs.alive_entities());
     app.ecs.create_entity();
     println!("Has component: {}", app.ecs.has_component::<Position>(0));
     app.ecs.insert_component::<Position>(0);
+
+    app.ecs.register_component::<Position>();
+    app.ecs.register_component::<Position>();
+    app.ecs.insert_component::<Position>(0);
+
     println!("Has component: {}", app.ecs.has_component::<Position>(0));
 
     println!("Alive: {}", app.ecs.alive_entities());
