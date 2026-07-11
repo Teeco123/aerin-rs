@@ -22,16 +22,17 @@ impl ComponentManager {
     }
     pub fn register_component<T: Component + 'static>(&mut self) {
         let type_name = T::type_of();
-        assert!(
-            !self.component_types.contains_key(type_name),
-            "Registering component type more than once"
-        );
 
         self.component_types
-            .insert(type_name, self.next_component_type);
+            .entry(type_name)
+            .and_modify(|existing_value| {
+                println!("DEBUG: Key already existed! Value is {}", existing_value);
+            })
+            .or_insert(self.next_component_type);
 
         self.components_arrays
-            .insert(type_name, Box::new(ComponentArray::<T>::new(32)));
+            .entry(type_name)
+            .or_insert(Box::new(ComponentArray::<T>::new(32)));
 
         self.next_component_type += 1;
     }

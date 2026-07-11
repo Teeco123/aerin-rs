@@ -38,6 +38,7 @@ fn main() {
     );
 
     app.ecs.register_component::<Position>();
+    app.ecs.register_component::<Position>();
 
     println!("Alive: {}", app.ecs.alive_entities());
     app.ecs.create_entity();
