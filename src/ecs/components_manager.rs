@@ -23,16 +23,15 @@ impl ComponentManager {
     pub fn register_component<T: Component + 'static>(&mut self) {
         let type_name = T::type_of();
 
+        if self.component_types.contains_key(type_name) {
+            return;
+        }
+
         self.component_types
-            .entry(type_name)
-            .and_modify(|_| {
-                println!("Component {} is already registered", type_name);
-            })
-            .or_insert(self.next_component_type);
+            .insert(type_name, self.next_component_type);
 
         self.components_arrays
-            .entry(type_name)
-            .or_insert(Box::new(ComponentArray::<T>::new(32)));
+            .insert(type_name, Box::new(ComponentArray::<T>::new(32)));
 
         self.next_component_type += 1;
     }
@@ -40,7 +39,7 @@ impl ComponentManager {
         if let Some(array) = self.get_component_array_mut::<T>() {
             array.insert_component(id);
         } else {
-            eprintln!("Failed while inserting component");
+            return;
         }
     }
 
@@ -54,11 +53,8 @@ impl ComponentManager {
 
     pub fn get_component_type<T: Component>(&self) -> Option<&ComponentType> {
         let type_name = T::type_of();
-        if !self.component_types.contains_key(type_name) {
-            eprintln!("Component {} not registered before use", type_name);
-            return None;
-        }
-        Some(self.component_types.get(type_name).unwrap())
+
+        self.component_types.get(type_name)
     }
 }
 

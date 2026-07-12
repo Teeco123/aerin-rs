@@ -39,7 +39,6 @@ impl ECS {
     }
     pub fn insert_component<T: Component + 'static>(&mut self, id: Entity) {
         let Some(component_type_ref) = self.component_manager.get_component_type::<T>() else {
-            eprintln!("Failed to get component type");
             return;
         };
         let component_type = *component_type_ref;
