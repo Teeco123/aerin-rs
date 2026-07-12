@@ -68,12 +68,7 @@ impl ComponentManager {
 
         let boxed_trait = self.components_arrays.get(type_name)?;
 
-        Some(
-            boxed_trait
-                .as_any()
-                .downcast_ref::<ComponentArray<T>>()
-                .expect("Failed to downcast to ComponentArray"),
-        )
+        boxed_trait.as_any().downcast_ref::<ComponentArray<T>>()
     }
     fn get_component_array_mut<T: Component + 'static>(
         &mut self,
@@ -82,11 +77,6 @@ impl ComponentManager {
 
         let boxed_trait = self.components_arrays.get_mut(type_name)?;
 
-        Some(
-            boxed_trait
-                .as_any_mut()
-                .downcast_mut::<ComponentArray<T>>()
-                .expect("Failed to downcast to ComponentArray"),
-        )
+        boxed_trait.as_any_mut().downcast_mut::<ComponentArray<T>>()
     }
 }
