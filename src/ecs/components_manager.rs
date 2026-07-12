@@ -66,12 +66,7 @@ impl ComponentManager {
     fn get_component_array<T: Component + 'static>(&self) -> Option<&ComponentArray<T>> {
         let type_name = T::type_of();
 
-        if !self.component_types.contains_key(type_name) {
-            eprintln!("Component {} not registered before use", type_name);
-            return None;
-        }
-
-        let boxed_trait = self.components_arrays.get(type_name).unwrap();
+        let boxed_trait = self.components_arrays.get(type_name)?;
 
         Some(
             boxed_trait
@@ -85,12 +80,7 @@ impl ComponentManager {
     ) -> Option<&mut ComponentArray<T>> {
         let type_name = T::type_of();
 
-        if !self.component_types.contains_key(type_name) {
-            eprintln!("Component {} not registered before use", type_name);
-            return None;
-        }
-
-        let boxed_trait = self.components_arrays.get_mut(type_name).unwrap();
+        let boxed_trait = self.components_arrays.get_mut(type_name)?;
 
         Some(
             boxed_trait
