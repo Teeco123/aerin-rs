@@ -2,16 +2,21 @@ use crate::ecs::{
     components::Component,
     components_manager::ComponentManager,
     entity_manager::{Entity, EntityManager},
+    system::SystemTrait,
+    system_manager::SystemManager,
 };
 
 pub mod components;
 mod components_array;
 mod components_manager;
 mod entity_manager;
+pub mod system;
+mod system_manager;
 
 pub struct ECS {
     entity_manager: EntityManager,
     component_manager: ComponentManager,
+    system_manager: SystemManager,
 }
 
 impl ECS {
@@ -19,6 +24,7 @@ impl ECS {
         Self {
             entity_manager: EntityManager::new(),
             component_manager: ComponentManager::new(),
+            system_manager: SystemManager::new(),
         }
     }
     pub fn create_entity(&mut self) -> Entity {
@@ -37,6 +43,11 @@ impl ECS {
     pub fn register_component<T: Component + 'static>(&mut self) {
         self.component_manager.register_component::<T>();
     }
+
+    pub fn register_system<T: SystemTrait + 'static>(&mut self) {
+        self.system_manager.register_system::<T>();
+    }
+
     pub fn insert_component<T: Component + 'static>(&mut self, id: Entity) {
         let Some(component_type_ref) = self.component_manager.get_component_type::<T>() else {
             return;
