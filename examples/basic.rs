@@ -7,12 +7,25 @@ pub struct Position {
     y: f32,
 }
 
+pub struct Speed {
+    v: f32,
+}
+
 impl Component for Position {
     fn default() -> Self {
         Self { x: 0.0, y: 0.0 }
     }
     fn type_of() -> &'static str {
         "Position"
+    }
+}
+
+impl Component for Speed {
+    fn default() -> Self {
+        Self { v: 0.0 }
+    }
+    fn type_of() -> &'static str {
+        "Speed"
     }
 }
 
@@ -44,7 +57,9 @@ fn main() {
 
     app.ecs.register_component::<Position>();
     app.ecs.register_component::<Position>();
+    app.ecs.register_component::<Speed>();
     app.ecs.insert_component::<Position>(0);
+    app.ecs.insert_component::<Speed>(0);
 
     println!("Has component: {}", app.ecs.has_component::<Position>(0));
 

@@ -35,7 +35,7 @@ impl EntityManager {
 
     pub fn update_signature(&mut self, id: Entity, r#type: ComponentType) {
         if let Some(value) = self.signatures.get_mut(id as usize) {
-            *value = r#type as u32;
+            *value = *value ^ (1 << r#type);
         }
     }
 
