@@ -21,8 +21,8 @@ impl ECS {
             component_manager: ComponentManager::new(),
         }
     }
-    pub fn create_entity(&mut self) {
-        self.entity_manager.create_entity();
+    pub fn create_entity(&mut self) -> Entity {
+        self.entity_manager.create_entity()
     }
     pub fn destroy_entity(&mut self, id: Entity) {
         self.entity_manager.destroy_entity(id);

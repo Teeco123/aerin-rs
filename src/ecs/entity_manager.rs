@@ -16,21 +16,25 @@ impl EntityManager {
         Self {
             entities: 0,
             signatures: vec![0; 32],
-            available: VecDeque::new(),
+            available: (0..=32).collect(),
         }
     }
 
     pub fn create_entity(&mut self) -> Entity {
         if let Some(id) = self.available.pop_front() {
+            self.entities += 1;
             return id;
         }
-
-        self.entities += 1;
-        self.entities
+        return 0;
     }
 
     pub fn destroy_entity(&mut self, id: Entity) {
+        if let Some(value) = self.signatures.get_mut(id as usize) {
+            *value = 0;
+        }
+
         self.available.push_back(id);
+        self.entities -= 1;
     }
 
     pub fn update_signature(&mut self, id: Entity, r#type: ComponentType) {

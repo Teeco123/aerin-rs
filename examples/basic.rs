@@ -51,8 +51,9 @@ fn main() {
     );
 
     println!("Alive: {}", app.ecs.alive_entities());
-    app.ecs.create_entity();
+    println!("Created entity: {}", app.ecs.create_entity());
     println!("Has component: {}", app.ecs.has_component::<Position>(0));
+
     app.ecs.insert_component::<Position>(0);
 
     app.ecs.register_component::<Position>();
@@ -64,12 +65,13 @@ fn main() {
     println!("Has component: {}", app.ecs.has_component::<Position>(0));
 
     println!("Alive: {}", app.ecs.alive_entities());
-    app.ecs.create_entity();
-    app.ecs.create_entity();
+    println!("Created entity: {}", app.ecs.create_entity());
+    println!("Created entity: {}", app.ecs.create_entity());
     println!("Alive: {}", app.ecs.alive_entities());
     app.ecs.destroy_entity(1);
     println!("Alive: {}", app.ecs.alive_entities());
-    app.ecs.create_entity();
+    println!("Created entity: {}", app.ecs.create_entity());
+    println!("Alive: {}", app.ecs.alive_entities());
 
     app.run();
 }
