@@ -62,6 +62,10 @@ fn main() {
     app.ecs.insert_component::<Position>(0);
     app.ecs.insert_component::<Speed>(0);
 
+    let component_speed = app.ecs.get_componen::<Speed>(0);
+    component_speed.v = 1.0;
+    println!("Speed: {}", component_speed.v);
+
     println!("Has component: {}", app.ecs.has_component::<Position>(0));
 
     println!("Alive: {}", app.ecs.alive_entities());

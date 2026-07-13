@@ -44,6 +44,12 @@ impl<T: Component> ComponentArray<T> {
         self.size += 1;
     }
 
+    pub fn get_component(&mut self, id: Entity) -> &mut T {
+        let dense_index = self.sparse.get(id as usize).unwrap();
+        let component = self.components.get_mut(*dense_index);
+        component.unwrap()
+    }
+
     pub fn has_component(&self, id: Entity) -> bool {
         if id as usize >= self.sparse.len() {
             return false;

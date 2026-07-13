@@ -1,4 +1,4 @@
-use std::{any::type_name, collections::HashMap};
+use std::collections::HashMap;
 
 use crate::ecs::{
     components::{Component, ComponentType},
@@ -40,6 +40,14 @@ impl ComponentManager {
             array.insert_component(id);
         } else {
             return;
+        }
+    }
+
+    pub fn get_component<T: Component + 'static>(&mut self, id: Entity) -> Option<&mut T> {
+        if let Some(array) = self.get_component_array_mut::<T>() {
+            Some(array.get_component(id))
+        } else {
+            None
         }
     }
 

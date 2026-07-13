@@ -45,6 +45,11 @@ impl ECS {
         self.component_manager.insert_component::<T>(id);
         self.entity_manager.update_signature(id, component_type);
     }
+
+    pub fn get_componen<T: Component + 'static>(&mut self, id: Entity) -> &mut T {
+        self.component_manager.get_component(id).unwrap()
+    }
+
     pub fn has_component<T: Component + 'static>(&self, id: Entity) -> bool {
         self.component_manager.has_component::<T>(id)
     }
