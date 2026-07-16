@@ -1,8 +1,6 @@
 use winit::{
-    application::ApplicationHandler,
     dpi::LogicalSize,
-    event::WindowEvent,
-    event_loop::{ControlFlow, EventLoop},
+    event_loop::ActiveEventLoop,
     raw_window_handle::{DisplayHandle, HasDisplayHandle, HasWindowHandle, WindowHandle},
     window::Window as WinitWindow,
 };
@@ -29,21 +27,8 @@ impl Window {
             renderer: Some(Renderer::new()),
         }
     }
-    pub fn run(&mut self) {
-        let event_loop = EventLoop::new().unwrap();
-        event_loop.set_control_flow(ControlFlow::Poll);
-        let _ = event_loop.run_app(self);
-    }
-    pub fn get_window_handle(&self) -> WindowHandle<'_> {
-        self.window.as_ref().unwrap().window_handle().unwrap()
-    }
-    pub fn get_display_handle(&self) -> DisplayHandle<'_> {
-        self.window.as_ref().unwrap().display_handle().unwrap()
-    }
-}
 
-impl ApplicationHandler for Window {
-    fn resumed(&mut self, event_loop: &winit::event_loop::ActiveEventLoop) {
+    pub fn init(&mut self, event_loop: &ActiveEventLoop) {
         let window_specs = self.window_specs.as_ref().unwrap();
 
         let winit_window_attr = WinitWindow::default_attributes()
@@ -59,20 +44,20 @@ impl ApplicationHandler for Window {
 
         self.renderer.as_mut().unwrap().compile_shaders();
     }
-    fn about_to_wait(&mut self, _event_loop: &winit::event_loop::ActiveEventLoop) {
+
+    pub fn request_redraw(&self) {
         self.window.as_ref().unwrap().request_redraw();
     }
-    fn window_event(
-        &mut self,
-        _event_loop: &winit::event_loop::ActiveEventLoop,
-        _window_id: winit::window::WindowId,
-        event: winit::event::WindowEvent,
-    ) {
-        match event {
-            WindowEvent::RedrawRequested => {
-                self.renderer.as_ref().unwrap().draw();
-            }
-            _ => {}
-        }
+
+    pub fn draw(&self) {
+        self.renderer.as_ref().unwrap().draw();
+    }
+
+    pub fn get_window_handle(&self) -> WindowHandle<'_> {
+        self.window.as_ref().unwrap().window_handle().unwrap()
+    }
+
+    pub fn get_display_handle(&self) -> DisplayHandle<'_> {
+        self.window.as_ref().unwrap().display_handle().unwrap()
     }
 }
