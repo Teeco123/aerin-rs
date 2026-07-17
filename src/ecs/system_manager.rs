@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use crate::ecs::system::{System, SystemSignature, SystemTrait};
+use crate::ecs::{
+    components::ComponentType,
+    system::{System, SystemSignature, SystemTrait},
+};
 
 pub struct SystemManager {
     systems: HashMap<&'static str, System>,
@@ -27,6 +30,13 @@ impl SystemManager {
         };
 
         self.systems.insert(type_name, system);
+        self.signatures.insert(type_name, 0);
+    }
+
+    pub fn update_signature<T: SystemTrait + 'static>(&mut self, component_type: ComponentType) {
+        if let Some(value) = self.signatures.get_mut(T::type_of()) {
+            *value = *value ^ (1 << component_type);
+        }
     }
 
     pub fn systems_update(&mut self) {
@@ -35,6 +45,7 @@ impl SystemManager {
         }
     }
 
+    #[allow(dead_code)]
     pub fn systems_fixed_update(&mut self) {
         for (_name, system) in &mut self.systems {
             system.system.fixed_update(&mut system.entities);

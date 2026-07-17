@@ -48,6 +48,11 @@ impl ECS {
         self.system_manager.register_system::<T>();
     }
 
+    pub fn update_signature<T: SystemTrait + 'static, C: Component>(&mut self) {
+        let component_type = self.component_manager.get_component_type::<C>().unwrap();
+        self.system_manager.update_signature::<T>(*component_type);
+    }
+
     pub fn insert_component<T: Component + 'static>(&mut self, id: Entity) {
         let Some(component_type_ref) = self.component_manager.get_component_type::<T>() else {
             return;

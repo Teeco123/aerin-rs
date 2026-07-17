@@ -6,6 +6,7 @@ use aerin_rs::{
     window::WindowSpecs,
 };
 
+#[allow(dead_code)]
 pub struct Position {
     x: f32,
     y: f32,
@@ -105,6 +106,10 @@ fn main() {
     app.ecs.insert_component::<Speed>(0);
 
     app.ecs.register_system::<GravitySystem>();
+    app.ecs.update_signature::<GravitySystem, Position>();
+    app.ecs.update_signature::<GravitySystem, Speed>();
+    app.ecs.update_signature::<GravitySystem, Position>();
+
     app.ecs.register_system::<TestSystem>();
 
     let component_speed = app.ecs.get_componen::<Speed>(0);
