@@ -1,6 +1,10 @@
 use std::fs;
 
-use aerin_rs::{app::App, ecs::components::Component, window::WindowSpecs};
+use aerin_rs::{
+    app::App,
+    ecs::{components::Component, entity_manager::Entity, system::SystemTrait},
+    window::WindowSpecs,
+};
 
 pub struct Position {
     x: f32,
@@ -10,6 +14,12 @@ pub struct Position {
 pub struct Speed {
     v: f32,
 }
+
+#[derive(Default)]
+pub struct GravitySystem;
+
+#[derive(Default)]
+pub struct TestSystem;
 
 impl Component for Position {
     fn default() -> Self {
@@ -26,6 +36,38 @@ impl Component for Speed {
     }
     fn type_of() -> &'static str {
         "Speed"
+    }
+}
+
+impl SystemTrait for GravitySystem {
+    fn type_of() -> &'static str
+    where
+        Self: Sized,
+    {
+        "GravitySystem"
+    }
+
+    fn update(&mut self, _entities: &mut [Entity]) {
+        println!("update");
+    }
+    fn fixed_update(&mut self, _entities: &mut [Entity]) {
+        println!("fixed update")
+    }
+}
+
+impl SystemTrait for TestSystem {
+    fn type_of() -> &'static str
+    where
+        Self: Sized,
+    {
+        "TestSystem"
+    }
+
+    fn update(&mut self, _entities: &mut [Entity]) {
+        println!("update test");
+    }
+    fn fixed_update(&mut self, _entities: &mut [Entity]) {
+        println!("fixed update")
     }
 }
 
@@ -61,6 +103,9 @@ fn main() {
     app.ecs.register_component::<Speed>();
     app.ecs.insert_component::<Position>(0);
     app.ecs.insert_component::<Speed>(0);
+
+    app.ecs.register_system::<GravitySystem>();
+    app.ecs.register_system::<TestSystem>();
 
     let component_speed = app.ecs.get_componen::<Speed>(0);
     component_speed.v = 1.0;

@@ -9,7 +9,7 @@ use crate::ecs::{
 pub mod components;
 mod components_array;
 mod components_manager;
-mod entity_manager;
+pub mod entity_manager;
 pub mod system;
 mod system_manager;
 
@@ -44,7 +44,7 @@ impl ECS {
         self.component_manager.register_component::<T>();
     }
 
-    pub fn register_system<T: SystemTrait + 'static>(&mut self) {
+    pub fn register_system<T: SystemTrait + Default + 'static>(&mut self) {
         self.system_manager.register_system::<T>();
     }
 
@@ -63,5 +63,9 @@ impl ECS {
 
     pub fn has_component<T: Component + 'static>(&self, id: Entity) -> bool {
         self.component_manager.has_component::<T>(id)
+    }
+
+    pub(crate) fn update(&mut self) {
+        self.system_manager.systems_update();
     }
 }
