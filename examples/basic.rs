@@ -17,9 +17,6 @@ pub struct Speed {
 }
 
 #[derive(Default)]
-pub struct GravitySystem;
-
-#[derive(Default)]
 pub struct TestSystem;
 
 impl Component for Position {
@@ -40,22 +37,6 @@ impl Component for Speed {
     }
 }
 
-impl SystemTrait for GravitySystem {
-    fn type_of() -> &'static str
-    where
-        Self: Sized,
-    {
-        "GravitySystem"
-    }
-
-    fn update(&mut self, _entities: &mut [Entity]) {
-        println!("update");
-    }
-    fn fixed_update(&mut self, _entities: &mut [Entity]) {
-        println!("fixed update")
-    }
-}
-
 impl SystemTrait for TestSystem {
     fn type_of() -> &'static str
     where
@@ -64,11 +45,13 @@ impl SystemTrait for TestSystem {
         "TestSystem"
     }
 
-    fn update(&mut self, _entities: &mut [Entity]) {
-        println!("update test");
+    fn update(&mut self, entities: &mut [Entity]) {
+        for entity in entities {
+            println!("entity: {}", entity)
+        }
     }
     fn fixed_update(&mut self, _entities: &mut [Entity]) {
-        println!("fixed update")
+        println!("fixed test update")
     }
 }
 
@@ -93,39 +76,27 @@ fn main() {
         fragment_shader_source,
     );
 
-    println!("Alive: {}", app.ecs.alive_entities());
-    println!("Created entity: {}", app.ecs.create_entity());
-    println!("Has component: {}", app.ecs.has_component::<Position>(0));
-
-    app.ecs.insert_component::<Position>(0);
+    app.ecs.create_entity();
+    app.ecs.create_entity();
+    app.ecs.create_entity();
+    app.ecs.create_entity();
 
     app.ecs.register_component::<Position>();
     app.ecs.register_component::<Position>();
     app.ecs.register_component::<Speed>();
+    app.ecs.register_system::<TestSystem>();
+
+    app.ecs.update_signature::<TestSystem, Position>();
+    app.ecs.update_signature::<TestSystem, Speed>();
+
     app.ecs.insert_component::<Position>(0);
     app.ecs.insert_component::<Speed>(0);
 
-    app.ecs.register_system::<GravitySystem>();
-    app.ecs.update_signature::<GravitySystem, Position>();
-    app.ecs.update_signature::<GravitySystem, Speed>();
-    app.ecs.update_signature::<GravitySystem, Position>();
+    app.ecs.insert_component::<Speed>(2);
+    app.ecs.insert_component::<Position>(1);
 
-    app.ecs.register_system::<TestSystem>();
-
-    let component_speed = app.ecs.get_componen::<Speed>(0);
-    component_speed.v = 1.0;
-    println!("Speed: {}", component_speed.v);
-
-    println!("Has component: {}", app.ecs.has_component::<Position>(0));
-
-    println!("Alive: {}", app.ecs.alive_entities());
-    println!("Created entity: {}", app.ecs.create_entity());
-    println!("Created entity: {}", app.ecs.create_entity());
-    println!("Alive: {}", app.ecs.alive_entities());
-    app.ecs.destroy_entity(1);
-    println!("Alive: {}", app.ecs.alive_entities());
-    println!("Created entity: {}", app.ecs.create_entity());
-    println!("Alive: {}", app.ecs.alive_entities());
+    app.ecs.insert_component::<Position>(3);
+    app.ecs.insert_component::<Speed>(3);
 
     app.run();
 }

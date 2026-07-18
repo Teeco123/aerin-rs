@@ -59,7 +59,13 @@ impl ECS {
         };
         let component_type = *component_type_ref;
         self.component_manager.insert_component::<T>(id);
-        self.entity_manager.update_signature(id, component_type);
+
+        let signature = self
+            .entity_manager
+            .update_signature(id, component_type)
+            .unwrap();
+
+        self.system_manager.update_system_entities(id, signature);
     }
 
     pub fn get_componen<T: Component + 'static>(&mut self, id: Entity) -> &mut T {

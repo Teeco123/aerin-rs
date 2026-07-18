@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use crate::ecs::{
     components::ComponentType,
+    entity_manager::{Entity, EntitySignature},
     system::{System, SystemSignature, SystemTrait},
 };
 
@@ -36,6 +37,21 @@ impl SystemManager {
     pub fn update_signature<T: SystemTrait + 'static>(&mut self, component_type: ComponentType) {
         if let Some(value) = self.signatures.get_mut(T::type_of()) {
             *value = *value ^ (1 << component_type);
+        }
+    }
+
+    pub fn update_system_entities(&mut self, entity: Entity, entity_signature: EntitySignature) {
+        for (name, system) in &mut self.systems {
+            let sig = self.signatures.get(name).unwrap();
+            if (entity_signature & *sig) == *sig {
+                if !system.entities.contains(&entity) {
+                    system.entities.push(entity);
+                }
+            } else {
+                if let Some(index) = system.entities.iter().position(|&e| e == entity) {
+                    system.entities.swap_remove(index);
+                }
+            }
         }
     }
 
