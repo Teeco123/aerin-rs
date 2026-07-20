@@ -70,7 +70,7 @@ fn main() {
     let fragment_shader_source: String =
         fs::read_to_string("shaders/frag.glsl").expect("failed to load file");
 
-    app.window.renderer.as_mut().unwrap().load_shader(
+    app.renderer.load_shader(
         "triangle".to_string(),
         vertex_shader_source,
         fragment_shader_source,

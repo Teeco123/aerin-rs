@@ -6,11 +6,13 @@ use winit::{
 
 use crate::{
     ecs::ECS,
+    renderer::Renderer,
     window::{Window, WindowSpecs},
 };
 
 pub struct App {
     pub window: Window,
+    pub renderer: Renderer,
     pub ecs: ECS,
 }
 
@@ -18,6 +20,7 @@ impl App {
     pub fn new(window_specs: WindowSpecs) -> Self {
         Self {
             window: Window::new(window_specs),
+            renderer: Renderer::new(),
             ecs: ECS::new(),
         }
     }
@@ -32,6 +35,10 @@ impl App {
 impl ApplicationHandler for App {
     fn resumed(&mut self, event_loop: &winit::event_loop::ActiveEventLoop) {
         self.window.init(event_loop);
+        let window_handle = self.window.get_window_handle();
+        let display_handle = self.window.get_display_handle();
+        self.renderer.init(window_handle, display_handle);
+        self.renderer.compile_shaders();
     }
 
     fn about_to_wait(&mut self, _event_loop: &winit::event_loop::ActiveEventLoop) {
@@ -47,7 +54,7 @@ impl ApplicationHandler for App {
     ) {
         match event {
             WindowEvent::RedrawRequested => {
-                self.window.draw();
+                self.renderer.draw();
             }
             _ => {}
         }

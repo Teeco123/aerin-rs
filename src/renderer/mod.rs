@@ -43,7 +43,7 @@ impl Renderer {
             programs: HashMap::new(),
         }
     }
-    pub fn create(&mut self, window_handle: WindowHandle<'_>, display_handle: DisplayHandle<'_>) {
+    pub fn init(&mut self, window_handle: WindowHandle<'_>, display_handle: DisplayHandle<'_>) {
         let preference = DisplayApiPreference::Cgl;
         let gl_display = unsafe { Display::new(display_handle.as_raw(), preference).unwrap() };
 
