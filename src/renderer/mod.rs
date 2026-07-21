@@ -95,8 +95,6 @@ impl Renderer {
     pub fn draw(&self) {
         let gl = self.gl.as_ref().unwrap();
 
-        self.use_shader("triangle".to_string());
-
         unsafe {
             gl.clear(glow::COLOR_BUFFER_BIT);
             gl.draw_arrays(glow::TRIANGLES, 0, 3);

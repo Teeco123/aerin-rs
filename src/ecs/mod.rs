@@ -1,9 +1,12 @@
-use crate::ecs::{
-    components::Component,
-    components_manager::ComponentManager,
-    entity_manager::{Entity, EntityManager},
-    system::SystemTrait,
-    system_manager::SystemManager,
+use crate::{
+    app::AppContext,
+    ecs::{
+        components::Component,
+        components_manager::ComponentManager,
+        entity_manager::{Entity, EntityManager},
+        system::SystemTrait,
+        system_manager::SystemManager,
+    },
 };
 
 pub mod components;
@@ -76,7 +79,7 @@ impl ECS {
         self.component_manager.has_component::<T>(id)
     }
 
-    pub(crate) fn update(&mut self) {
-        self.system_manager.systems_update();
+    pub(crate) fn update(&mut self, ctx: &mut AppContext) {
+        self.system_manager.systems_update(ctx);
     }
 }

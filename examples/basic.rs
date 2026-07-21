@@ -1,7 +1,7 @@
 use std::fs;
 
 use aerin_rs::{
-    app::App,
+    app::{App, AppContext},
     ecs::{components::Component, entity_manager::Entity, system::SystemTrait},
     window::WindowSpecs,
 };
@@ -45,8 +45,10 @@ impl SystemTrait for TestSystem {
         "TestSystem"
     }
 
-    fn update(&mut self, entities: &mut [Entity]) {
+    fn update(&mut self, entities: &mut [Entity], ctx: &mut AppContext) {
         for entity in entities {
+            ctx.renderer.use_shader("triangle".to_string());
+            //ctx.renderer.draw();
             println!("entity: {}", entity)
         }
     }
