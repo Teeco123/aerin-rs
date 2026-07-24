@@ -16,9 +16,9 @@ pub struct App {
     pub ecs: ECS,
 }
 
-pub struct AppContext<'a> {
-    pub window: &'a Window,
-    pub renderer: &'a Renderer,
+pub struct AppResources<'a> {
+    pub window: &'a mut Window,
+    pub renderer: &'a mut Renderer,
 }
 
 impl App {
@@ -47,7 +47,12 @@ impl ApplicationHandler for App {
     }
 
     fn about_to_wait(&mut self, _event_loop: &winit::event_loop::ActiveEventLoop) {
-        self.ecs.update();
+        let mut res = AppResources {
+            window: &mut self.window,
+            renderer: &mut self.renderer,
+        };
+
+        self.ecs.update(&mut res);
         self.window.request_redraw();
     }
 

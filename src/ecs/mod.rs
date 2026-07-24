@@ -1,9 +1,12 @@
-use crate::ecs::{
-    components::Component,
-    components_manager::ComponentManager,
-    entity_manager::{Entity, EntityManager},
-    system::SystemTrait,
-    system_manager::SystemManager,
+use crate::{
+    app::AppResources,
+    ecs::{
+        components::Component,
+        components_manager::ComponentManager,
+        entity_manager::{Entity, EntityManager},
+        system::SystemTrait,
+        system_manager::SystemManager,
+    },
 };
 
 pub mod components;
@@ -16,7 +19,7 @@ mod system_manager;
 pub struct ECS {
     entity_manager: EntityManager,
     component_manager: ComponentManager,
-    system_manager: SystemManager,
+    system_manager: Option<SystemManager>,
 }
 
 impl ECS {
@@ -24,7 +27,7 @@ impl ECS {
         Self {
             entity_manager: EntityManager::new(),
             component_manager: ComponentManager::new(),
-            system_manager: SystemManager::new(),
+            system_manager: Some(SystemManager::new()),
         }
     }
     pub fn create_entity(&mut self) -> Entity {
@@ -45,12 +48,15 @@ impl ECS {
     }
 
     pub fn register_system<T: SystemTrait + Default + 'static>(&mut self) {
-        self.system_manager.register_system::<T>();
+        self.system_manager.as_mut().unwrap().register_system::<T>();
     }
 
     pub fn update_signature<T: SystemTrait + 'static, C: Component>(&mut self) {
         let component_type = self.component_manager.get_component_type::<C>().unwrap();
-        self.system_manager.update_signature::<T>(*component_type);
+        self.system_manager
+            .as_mut()
+            .unwrap()
+            .update_signature::<T>(*component_type);
     }
 
     pub fn insert_component<T: Component + 'static>(&mut self, id: Entity) {
@@ -65,7 +71,10 @@ impl ECS {
             .update_signature(id, component_type)
             .unwrap();
 
-        self.system_manager.update_system_entities(id, signature);
+        self.system_manager
+            .as_mut()
+            .unwrap()
+            .update_system_entities(id, signature);
     }
 
     pub fn get_componen<T: Component + 'static>(&mut self, id: Entity) -> &mut T {
@@ -76,7 +85,9 @@ impl ECS {
         self.component_manager.has_component::<T>(id)
     }
 
-    pub(crate) fn update(&mut self) {
-        self.system_manager.systems_update();
+    pub(crate) fn update(&mut self, res: &mut AppResources) {
+        let mut system_manager = self.system_manager.take().unwrap();
+        system_manager.systems_update(self, res);
+        self.system_manager = Some(system_manager);
     }
 }

@@ -1,4 +1,7 @@
-use crate::ecs::entity_manager::Entity;
+use crate::{
+    app::AppResources,
+    ecs::{ECS, entity_manager::Entity},
+};
 
 pub type SystemSignature = u32;
 
@@ -14,7 +17,7 @@ pub trait SystemTrait {
     where
         Self: Sized;
 
-    fn update(&mut self, entities: &mut [Entity]);
+    fn update(&mut self, entities: &mut [Entity], ecs: &mut ECS, res: &mut AppResources);
 
     fn fixed_update(&mut self, entities: &mut [Entity]);
 }

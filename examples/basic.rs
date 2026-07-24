@@ -1,8 +1,8 @@
 use std::fs;
 
 use aerin_rs::{
-    app::App,
-    ecs::{components::Component, entity_manager::Entity, system::SystemTrait},
+    app::{App, AppResources},
+    ecs::{ECS, components::Component, entity_manager::Entity, system::SystemTrait},
     window::WindowSpecs,
 };
 
@@ -45,7 +45,7 @@ impl SystemTrait for TestSystem {
         "TestSystem"
     }
 
-    fn update(&mut self, entities: &mut [Entity]) {
+    fn update(&mut self, entities: &mut [Entity], ecs: &mut ECS, res: &mut AppResources) {
         for entity in entities {
             println!("entity: {}", entity)
         }
