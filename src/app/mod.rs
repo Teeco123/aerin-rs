@@ -47,12 +47,7 @@ impl ApplicationHandler for App {
     }
 
     fn about_to_wait(&mut self, _event_loop: &winit::event_loop::ActiveEventLoop) {
-        let mut ctx = AppContext {
-            window: &self.window,
-            renderer: &mut self.renderer,
-        };
-
-        self.ecs.update(&mut ctx);
+        self.ecs.update();
         self.window.request_redraw();
     }
 

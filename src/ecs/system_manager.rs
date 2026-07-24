@@ -1,12 +1,9 @@
 use std::collections::HashMap;
 
-use crate::{
-    app::AppContext,
-    ecs::{
-        components::ComponentType,
-        entity_manager::{Entity, EntitySignature},
-        system::{System, SystemSignature, SystemTrait},
-    },
+use crate::ecs::{
+    components::ComponentType,
+    entity_manager::{Entity, EntitySignature},
+    system::{System, SystemSignature, SystemTrait},
 };
 
 pub struct SystemManager {
@@ -58,9 +55,9 @@ impl SystemManager {
         }
     }
 
-    pub fn systems_update(&mut self, ctx: &mut AppContext) {
+    pub fn systems_update(&mut self) {
         for (_name, system) in &mut self.systems {
-            system.system.update(&mut system.entities, ctx);
+            system.system.update(&mut system.entities);
         }
     }
 
