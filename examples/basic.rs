@@ -1,3 +1,5 @@
+use std::fs;
+
 use aerin_rs::{
     app::{App, AppResources},
     ecs::{ECS, components::Component, entity_manager::Entity, system::SystemTrait},
@@ -31,13 +33,30 @@ impl SystemTrait for ShaderSystem {
     }
 
     fn start(&mut self, entities: &mut [Entity], ecs: &mut ECS, res: &mut AppResources) {
+        let gl = res.renderer.get_gl();
+
+        let vertex_source: String =
+            fs::read_to_string("shaders/vertex.glsl").expect("failed to load file");
+
+        let fragment_source: String =
+            fs::read_to_string("shaders/frag.glsl").expect("failed to load file");
+
+        let shader = Shader::new(gl, vertex_source, fragment_source);
+
         for entity in entities {
             println!("entity: {} start", entity);
+            let component = ecs.get_componen::<ShaderComponent>(*entity);
+            component.shader = Some(shader.clone());
         }
     }
-    fn update(&mut self, entities: &mut [Entity], _ecs: &mut ECS, _res: &mut AppResources) {
+    fn update(&mut self, entities: &mut [Entity], ecs: &mut ECS, res: &mut AppResources) {
+        let gl = res.renderer.get_gl();
+
         for entity in entities {
             println!("entity: {} update", entity);
+            let component = ecs.get_componen::<ShaderComponent>(*entity);
+            component.shader.as_ref().unwrap().bind(gl);
+            res.renderer.draw();
         }
     }
     fn fixed_update(&mut self, _entities: &mut [Entity]) {}
