@@ -2,8 +2,10 @@ use glow::{Context, FRAGMENT_SHADER, HasContext, NativeProgram, VERTEX_SHADER};
 
 pub type ShaderType = u32;
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct ProgramId(pub(crate) NativeProgram);
 
+#[derive(Clone)]
 pub struct Shader {
     id: ProgramId,
 }
