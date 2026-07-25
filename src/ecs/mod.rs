@@ -77,7 +77,7 @@ impl ECS {
             .update_system_entities(id, signature);
     }
 
-    pub fn get_componen<T: Component + 'static>(&mut self, id: Entity) -> &mut T {
+    pub fn get_component<T: Component + 'static>(&mut self, id: Entity) -> &mut T {
         self.component_manager.get_component(id).unwrap()
     }
 

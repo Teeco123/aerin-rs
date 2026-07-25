@@ -1,8 +1,8 @@
 pub mod shader;
 
-use std::{collections::HashMap, num::NonZeroU32};
+use std::num::NonZeroU32;
 
-use glow::{Context, HasContext, Program};
+use glow::{Context, HasContext};
 use glutin::{
     config::ConfigTemplateBuilder,
     context::{ContextApi, ContextAttributesBuilder, PossiblyCurrentContext, Version},
@@ -16,7 +16,6 @@ pub struct Renderer {
     surface: Option<Surface<WindowSurface>>,
     context: Option<PossiblyCurrentContext>,
     gl: Option<Context>,
-    programs: HashMap<String, Program>,
 }
 
 impl Renderer {
@@ -25,7 +24,6 @@ impl Renderer {
             surface: None,
             context: None,
             gl: None,
-            programs: HashMap::new(),
         }
     }
     pub fn init(&mut self, window_handle: WindowHandle<'_>, display_handle: DisplayHandle<'_>) {

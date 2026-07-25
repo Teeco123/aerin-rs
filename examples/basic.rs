@@ -45,7 +45,7 @@ impl SystemTrait for ShaderSystem {
 
         for entity in entities {
             println!("entity: {} start", entity);
-            let component = ecs.get_componen::<ShaderComponent>(*entity);
+            let component = ecs.get_component::<ShaderComponent>(*entity);
             component.shader = Some(shader.clone());
         }
     }
@@ -54,7 +54,7 @@ impl SystemTrait for ShaderSystem {
 
         for entity in entities {
             println!("entity: {} update", entity);
-            let component = ecs.get_componen::<ShaderComponent>(*entity);
+            let component = ecs.get_component::<ShaderComponent>(*entity);
             component.shader.as_ref().unwrap().bind(gl);
             res.renderer.draw();
         }
