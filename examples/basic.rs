@@ -3,58 +3,37 @@ use std::fs;
 use aerin_rs::{
     app::{App, AppResources},
     ecs::{ECS, components::Component, entity_manager::Entity, system::SystemTrait},
+    renderer::shader::Shader,
     window::WindowSpecs,
 };
 
 #[allow(dead_code)]
-pub struct Position {
-    x: f32,
-    y: f32,
-}
-
-pub struct Speed {
-    v: f32,
+pub struct ShaderComponent {
+    shader: Option<Shader>,
 }
 
 #[derive(Default)]
-pub struct TestSystem;
+pub struct ShaderSystem;
 
-impl Component for Position {
+impl Component for ShaderComponent {
     fn default() -> Self {
-        Self { x: 0.0, y: 0.0 }
+        Self { shader: None }
     }
     fn type_of() -> &'static str {
-        "Position"
+        "Shader"
     }
 }
 
-impl Component for Speed {
-    fn default() -> Self {
-        Self { v: 0.0 }
-    }
-    fn type_of() -> &'static str {
-        "Speed"
-    }
-}
-
-impl SystemTrait for TestSystem {
+impl SystemTrait for ShaderSystem {
     fn type_of() -> &'static str
     where
         Self: Sized,
     {
-        "TestSystem"
+        "ShaderSystem"
     }
 
-    fn update(&mut self, entities: &mut [Entity], ecs: &mut ECS, res: &mut AppResources) {
-        for entity in entities {
-            println!("entity: {}", entity);
-            res.renderer.use_shader("triangle".to_string());
-            res.renderer.draw();
-        }
-    }
-    fn fixed_update(&mut self, _entities: &mut [Entity]) {
-        println!("fixed test update")
-    }
+    fn update(&mut self, _entities: &mut [Entity], _ecs: &mut ECS, _res: &mut AppResources) {}
+    fn fixed_update(&mut self, _entities: &mut [Entity]) {}
 }
 
 fn main() {
@@ -66,29 +45,14 @@ fn main() {
 
     let mut app = App::new(specs);
 
-    let vertex_shader_source: String =
-        fs::read_to_string("shaders/vertex.glsl").expect("failed to load file");
-
-    let fragment_shader_source: String =
-        fs::read_to_string("shaders/frag.glsl").expect("failed to load file");
-
-    app.renderer.load_shader(
-        "triangle".to_string(),
-        vertex_shader_source,
-        fragment_shader_source,
-    );
-
     app.ecs.create_entity();
 
-    app.ecs.register_component::<Position>();
-    app.ecs.register_component::<Speed>();
-    app.ecs.register_system::<TestSystem>();
+    app.ecs.register_component::<ShaderComponent>();
+    app.ecs.register_system::<ShaderSystem>();
 
-    app.ecs.update_signature::<TestSystem, Position>();
-    app.ecs.update_signature::<TestSystem, Speed>();
+    app.ecs.update_signature::<ShaderSystem, ShaderComponent>();
 
-    app.ecs.insert_component::<Position>(0);
-    app.ecs.insert_component::<Speed>(0);
+    app.ecs.insert_component::<ShaderComponent>(0);
 
     app.run();
 }
