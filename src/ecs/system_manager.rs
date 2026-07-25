@@ -58,6 +58,11 @@ impl SystemManager {
             }
         }
     }
+    pub fn systems_start(&mut self, ecs: &mut ECS, res: &mut AppResources) {
+        for (_name, system) in &mut self.systems {
+            system.system.start(&mut system.entities, ecs, res);
+        }
+    }
 
     pub fn systems_update(&mut self, ecs: &mut ECS, res: &mut AppResources) {
         for (_name, system) in &mut self.systems {

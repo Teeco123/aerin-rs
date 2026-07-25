@@ -43,6 +43,13 @@ impl ApplicationHandler for App {
         let window_handle = self.window.get_window_handle();
         let display_handle = self.window.get_display_handle();
         self.renderer.init(window_handle, display_handle);
+
+        let mut res = AppResources {
+            window: &mut self.window,
+            renderer: &mut self.renderer,
+        };
+
+        self.ecs.start(&mut res);
     }
 
     fn about_to_wait(&mut self, _event_loop: &winit::event_loop::ActiveEventLoop) {

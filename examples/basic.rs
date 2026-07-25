@@ -1,5 +1,3 @@
-use std::fs;
-
 use aerin_rs::{
     app::{App, AppResources},
     ecs::{ECS, components::Component, entity_manager::Entity, system::SystemTrait},
@@ -32,7 +30,16 @@ impl SystemTrait for ShaderSystem {
         "ShaderSystem"
     }
 
-    fn update(&mut self, _entities: &mut [Entity], _ecs: &mut ECS, _res: &mut AppResources) {}
+    fn start(&mut self, entities: &mut [Entity], ecs: &mut ECS, res: &mut AppResources) {
+        for entity in entities {
+            println!("entity: {} start", entity);
+        }
+    }
+    fn update(&mut self, entities: &mut [Entity], _ecs: &mut ECS, _res: &mut AppResources) {
+        for entity in entities {
+            println!("entity: {} update", entity);
+        }
+    }
     fn fixed_update(&mut self, _entities: &mut [Entity]) {}
 }
 

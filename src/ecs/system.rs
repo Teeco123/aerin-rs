@@ -17,6 +17,8 @@ pub trait SystemTrait {
     where
         Self: Sized;
 
+    fn start(&mut self, entities: &mut [Entity], ecs: &mut ECS, res: &mut AppResources);
+
     fn update(&mut self, entities: &mut [Entity], ecs: &mut ECS, res: &mut AppResources);
 
     fn fixed_update(&mut self, entities: &mut [Entity]);

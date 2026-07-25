@@ -85,6 +85,12 @@ impl ECS {
         self.component_manager.has_component::<T>(id)
     }
 
+    pub(crate) fn start(&mut self, res: &mut AppResources) {
+        let mut system_manager = self.system_manager.take().unwrap();
+        system_manager.systems_start(self, res);
+        self.system_manager = Some(system_manager);
+    }
+
     pub(crate) fn update(&mut self, res: &mut AppResources) {
         let mut system_manager = self.system_manager.take().unwrap();
         system_manager.systems_update(self, res);
