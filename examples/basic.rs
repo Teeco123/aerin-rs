@@ -47,7 +47,9 @@ impl SystemTrait for TestSystem {
 
     fn update(&mut self, entities: &mut [Entity], ecs: &mut ECS, res: &mut AppResources) {
         for entity in entities {
-            println!("entity: {}", entity)
+            println!("entity: {}", entity);
+            res.renderer.use_shader("triangle".to_string());
+            res.renderer.draw();
         }
     }
     fn fixed_update(&mut self, _entities: &mut [Entity]) {
@@ -77,11 +79,7 @@ fn main() {
     );
 
     app.ecs.create_entity();
-    app.ecs.create_entity();
-    app.ecs.create_entity();
-    app.ecs.create_entity();
 
-    app.ecs.register_component::<Position>();
     app.ecs.register_component::<Position>();
     app.ecs.register_component::<Speed>();
     app.ecs.register_system::<TestSystem>();
@@ -91,12 +89,6 @@ fn main() {
 
     app.ecs.insert_component::<Position>(0);
     app.ecs.insert_component::<Speed>(0);
-
-    app.ecs.insert_component::<Speed>(2);
-    app.ecs.insert_component::<Position>(1);
-
-    app.ecs.insert_component::<Position>(3);
-    app.ecs.insert_component::<Speed>(3);
 
     app.run();
 }

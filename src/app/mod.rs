@@ -52,8 +52,10 @@ impl ApplicationHandler for App {
             renderer: &mut self.renderer,
         };
 
+        res.renderer.clear();
         self.ecs.update(&mut res);
-        self.window.request_redraw();
+        res.window.request_redraw();
+        res.renderer.swap_buffers();
     }
 
     fn window_event(

@@ -96,10 +96,19 @@ impl Renderer {
         let gl = self.gl.as_ref().unwrap();
 
         unsafe {
-            gl.clear(glow::COLOR_BUFFER_BIT);
             gl.draw_arrays(glow::TRIANGLES, 0, 3);
         }
+    }
 
+    pub fn clear(&self) {
+        let gl = self.gl.as_ref().unwrap();
+
+        unsafe {
+            gl.clear(glow::COLOR_BUFFER_BIT);
+        }
+    }
+
+    pub fn swap_buffers(&self) {
         self.surface
             .as_ref()
             .unwrap()
