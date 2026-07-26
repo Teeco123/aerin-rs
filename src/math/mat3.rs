@@ -1,6 +1,6 @@
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign};
 
-use crate::vec3::Vec3;
+use crate::math::vec3::Vec3;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Mat3 {

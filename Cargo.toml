@@ -7,3 +7,7 @@ edition = "2024"
 winit = { version = "0.30" }
 glutin = { version = "0.32" }
 glow = { version = "0.17" }
+
+[dev-dependencies]
+glam = { version = "0.33" }
+approx = { version = "0.5" }
