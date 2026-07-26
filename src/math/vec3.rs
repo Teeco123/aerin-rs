@@ -12,124 +12,121 @@ impl Vec3 {
         Self { x: x, y: y, z: z }
     }
 
-    pub fn zero() -> Vec3 {
+    pub fn add(self, rhs: Vec3) -> Vec3 {
         Self {
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
         }
     }
 
-    pub fn magnitude(&self) -> f32 {
-        self.magnitude_squared().sqrt()
-    }
-
-    pub fn magnitude_squared(&self) -> f32 {
-        (self.x * self.x) + (self.y * self.y) + (self.z * self.z)
-    }
-
-    pub fn normalize(&self) -> Vec3 {
-        Self {
-            x: self.x / self.magnitude(),
-            y: self.y / self.magnitude(),
-            z: self.z / self.magnitude(),
-        }
-    }
-
-    pub fn distance_to(&self, other: &Vec3) -> f32 {
-        (((self.x - other.x) * (self.x - other.x))
-            + ((self.y - other.y) * (self.y - other.y))
-            + ((self.z - other.z) * (self.z - other.z)))
-            .sqrt()
-    }
-
-    pub fn direction_to(&self, other: &Vec3) -> Vec3 {
-        (*other - *self).normalize()
-    }
-}
-
-impl AddAssign for Vec3 {
-    fn add_assign(&mut self, rhs: Self) {
+    pub fn add_assign(&mut self, rhs: Self) {
         self.x += rhs.x;
         self.y += rhs.y;
         self.z += rhs.z;
     }
-}
 
-impl SubAssign for Vec3 {
-    fn sub_assign(&mut self, rhs: Self) {
+    pub fn sub(self, rhs: Vec3) -> Vec3 {
+        Self {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+        }
+    }
+
+    pub fn sub_assign(&mut self, rhs: Self) {
         self.x -= rhs.x;
         self.y -= rhs.y;
         self.z -= rhs.z;
     }
-}
 
-impl MulAssign for Vec3 {
-    fn mul_assign(&mut self, rhs: Self) {
+    pub fn mul(self, rhs: f32) -> Vec3 {
+        Self {
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
+        }
+    }
+
+    pub fn mul_assign(&mut self, rhs: Self) {
         self.x *= rhs.x;
         self.y *= rhs.y;
         self.z *= rhs.z;
     }
-}
 
-impl DivAssign for Vec3 {
-    fn div_assign(&mut self, rhs: Self) {
+    pub fn div(self, rhs: f32) -> Vec3 {
+        Self {
+            x: self.x / rhs,
+            y: self.y / rhs,
+            z: self.z / rhs,
+        }
+    }
+
+    pub fn div_assign(&mut self, rhs: Self) {
         self.x /= rhs.x;
         self.y /= rhs.y;
         self.z /= rhs.z;
+    }
+
+    pub fn eq(&self, rhs: &Self) -> bool {
+        self.x == rhs.x && self.y == rhs.y && self.y == rhs.y
     }
 }
 
 impl Add for Vec3 {
     type Output = Vec3;
+    fn add(self, rhs: Vec3) -> Vec3 {
+        self.add(rhs)
+    }
+}
 
-    fn add(self, other: Vec3) -> Vec3 {
-        Self {
-            x: self.x + other.x,
-            y: self.y + other.y,
-            z: self.z + other.z,
-        }
+impl AddAssign for Vec3 {
+    fn add_assign(&mut self, rhs: Self) {
+        self.add_assign(rhs);
     }
 }
 
 impl Sub for Vec3 {
     type Output = Vec3;
+    fn sub(self, rhs: Vec3) -> Vec3 {
+        self.sub(rhs)
+    }
+}
 
-    fn sub(self, other: Vec3) -> Vec3 {
-        Self {
-            x: self.x - other.x,
-            y: self.y - other.y,
-            z: self.z - other.z,
-        }
+impl SubAssign for Vec3 {
+    fn sub_assign(&mut self, rhs: Self) {
+        self.sub_assign(rhs);
     }
 }
 
 impl Mul<f32> for Vec3 {
     type Output = Vec3;
+    fn mul(self, rhs: f32) -> Vec3 {
+        self.mul(rhs)
+    }
+}
 
-    fn mul(self, scalar: f32) -> Vec3 {
-        Self {
-            x: self.x * scalar,
-            y: self.y * scalar,
-            z: self.z * scalar,
-        }
+impl MulAssign for Vec3 {
+    fn mul_assign(&mut self, rhs: Self) {
+        self.mul_assign(rhs);
     }
 }
 
 impl Div<f32> for Vec3 {
     type Output = Vec3;
+    fn div(self, rhs: f32) -> Vec3 {
+        self.div(rhs)
+    }
+}
 
-    fn div(self, scalar: f32) -> Vec3 {
-        Self {
-            x: self.x / scalar,
-            y: self.y / scalar,
-            z: self.z / scalar,
-        }
+impl DivAssign for Vec3 {
+    fn div_assign(&mut self, rhs: Self) {
+        self.div_assign(rhs);
     }
 }
 
 impl PartialEq for Vec3 {
-    fn eq(&self, other: &Self) -> bool {
-        self.x == other.x && self.y == other.y && self.y == other.y
+    fn eq(&self, rhs: &Self) -> bool {
+        self.eq(rhs)
     }
 }
