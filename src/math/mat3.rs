@@ -47,12 +47,12 @@ impl Index<usize> for Mat3 {
 }
 
 impl IndexMut<usize> for Mat3 {
-    fn index_mut(&self, i: usize) -> &mut Vec3 {
+    fn index_mut(&mut self, i: usize) -> &mut Vec3 {
         &mut self.n[i]
     }
 }
 
-impl Index<(usize, usize)> for Matrix3D {
+impl Index<(usize, usize)> for Mat3 {
     type Output = f32;
 
     fn index(&self, index: (usize, usize)) -> &Self::Output {
@@ -67,7 +67,7 @@ impl Index<(usize, usize)> for Matrix3D {
     }
 }
 
-impl IndexMut<(usize, usize)> for Matrix3D {
+impl IndexMut<(usize, usize)> for Mat3 {
     fn index_mut(&mut self, index: (usize, usize)) -> &mut Self::Output {
         let (i, j) = index;
         let col = &mut self.n[j];
