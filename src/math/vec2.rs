@@ -7,117 +7,134 @@ pub struct Vec2 {
 }
 
 impl Vec2 {
+    #[inline]
     pub fn new(x: f32, y: f32) -> Vec2 {
         Self { x: x, y: y }
     }
 
-    pub fn zero() -> Vec2 {
-        Self { x: 0.0, y: 0.0 }
-    }
-
-    pub fn dot(&self, other: &Vec2) -> f32 {
-        (self.x * other.x) - (self.y * other.y)
-    }
-
-    pub fn magnitude(&self) -> f32 {
-        self.magnitude_squared().sqrt()
-    }
-
-    pub fn magnitude_squared(&self) -> f32 {
-        (self.x * self.x) + (self.y * self.y)
-    }
-
-    pub fn normalize(&self) -> Vec2 {
+    #[inline]
+    pub fn add(self, rhs: Vec2) -> Vec2 {
         Self {
-            x: self.x / self.magnitude(),
-            y: self.y / self.magnitude(),
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
         }
     }
 
-    pub fn distance_to(&self, other: &Vec2) -> f32 {
-        (((self.x - other.x) * (self.x - other.x)) + ((self.y - other.y) * (self.y - other.y)))
-            .sqrt()
-    }
-
-    pub fn direction_to(&self, other: &Vec2) -> Vec2 {
-        (*other - *self).normalize()
-    }
-}
-
-impl AddAssign for Vec2 {
-    fn add_assign(&mut self, rhs: Self) {
+    #[inline]
+    pub fn add_assign(&mut self, rhs: Self) {
         self.x += rhs.x;
         self.y += rhs.y;
     }
-}
 
-impl SubAssign for Vec2 {
-    fn sub_assign(&mut self, rhs: Self) {
-        self.x -= rhs.x;
-        self.y -= rhs.y;
-    }
-}
-
-impl MulAssign for Vec2 {
-    fn mul_assign(&mut self, rhs: Self) {
-        self.x *= rhs.x;
-        self.y *= rhs.y;
-    }
-}
-
-impl DivAssign for Vec2 {
-    fn div_assign(&mut self, rhs: Self) {
-        self.x /= rhs.x;
-        self.y /= rhs.y;
-    }
-}
-
-impl Add for Vec2 {
-    type Output = Vec2;
-
-    fn add(self, other: Vec2) -> Vec2 {
-        Self {
-            x: self.x + other.x,
-            y: self.y + other.y,
-        }
-    }
-}
-
-impl Sub for Vec2 {
-    type Output = Vec2;
-
-    fn sub(self, other: Vec2) -> Vec2 {
+    #[inline]
+    pub fn sub(self, other: Vec2) -> Vec2 {
         Self {
             x: self.x - other.x,
             y: self.y - other.y,
         }
     }
+
+    #[inline]
+    pub fn sub_assign(&mut self, rhs: Self) {
+        self.x -= rhs.x;
+        self.y -= rhs.y;
+    }
+
+    #[inline]
+    pub fn mul(self, rhs: f32) -> Vec2 {
+        Self {
+            x: self.x * rhs,
+            y: self.y * rhs,
+        }
+    }
+
+    #[inline]
+    pub fn mul_assign(&mut self, rhs: Self) {
+        self.x *= rhs.x;
+        self.y *= rhs.y;
+    }
+
+    #[inline]
+    pub fn div(self, rhs: f32) -> Vec2 {
+        Self {
+            x: self.x / rhs,
+            y: self.y / rhs,
+        }
+    }
+
+    #[inline]
+    pub fn div_assign(&mut self, rhs: Self) {
+        self.x /= rhs.x;
+        self.y /= rhs.y;
+    }
+
+    #[inline]
+    fn eq(&self, other: &Self) -> bool {
+        self.x == other.x && self.y == other.y
+    }
+}
+
+impl Add for Vec2 {
+    type Output = Vec2;
+    fn add(self, rhs: Vec2) -> Vec2 {
+        self.add(rhs)
+    }
+}
+
+impl AddAssign for Vec2 {
+    fn add_assign(&mut self, rhs: Self) {
+        self.add_assign(rhs);
+    }
+}
+
+impl Sub for Vec2 {
+    type Output = Vec2;
+    #[inline]
+    fn sub(self, rhs: Vec2) -> Vec2 {
+        self.sub(rhs)
+    }
+}
+
+impl SubAssign for Vec2 {
+    #[inline]
+    fn sub_assign(&mut self, rhs: Self) {
+        self.sub_assign(rhs);
+    }
 }
 
 impl Mul<f32> for Vec2 {
     type Output = Vec2;
+    #[inline]
+    fn mul(self, rhs: f32) -> Vec2 {
+        self.mul(rhs)
+    }
+}
 
-    fn mul(self, scalar: f32) -> Vec2 {
-        Self {
-            x: self.x * scalar,
-            y: self.y * scalar,
-        }
+impl MulAssign for Vec2 {
+    #[inline]
+    fn mul_assign(&mut self, rhs: Self) {
+        self.mul_assign(rhs);
     }
 }
 
 impl Div<f32> for Vec2 {
     type Output = Vec2;
+    #[inline]
+    fn div(self, rhs: f32) -> Vec2 {
+        self.div(rhs)
+    }
+}
 
-    fn div(self, scalar: f32) -> Vec2 {
-        Self {
-            x: self.x / scalar,
-            y: self.y / scalar,
-        }
+impl DivAssign for Vec2 {
+    #[inline]
+    fn div_assign(&mut self, rhs: Self) {
+        self.div_assign(rhs);
     }
 }
 
 impl PartialEq for Vec2 {
-    fn eq(&self, other: &Self) -> bool {
-        self.x == other.x && self.y == other.y
+    #[inline]
+    fn eq(&self, rhs: &Self) -> bool {
+        self.eq(rhs)
     }
 }

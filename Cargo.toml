@@ -11,3 +11,8 @@ glow = { version = "0.17" }
 [dev-dependencies]
 glam = { version = "0.33" }
 approx = { version = "0.5" }
+criterion = { version = "0.8", features = ["html_reports"] }
+
+[[bench]]
+name = "vec2"
+harness = false

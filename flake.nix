@@ -23,6 +23,7 @@
           rustfmt
           clippy
           rust-analyzer
+          gnuplot
         ];
       in
       {
