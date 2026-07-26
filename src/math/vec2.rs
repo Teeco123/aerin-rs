@@ -69,10 +69,10 @@ impl Vec2 {
     }
 
     #[inline]
-    pub fn sub(self, other: Vec2) -> Vec2 {
+    pub fn sub(self, rhs: Vec2) -> Vec2 {
         Self {
-            x: self.x - other.x,
-            y: self.y - other.y,
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
         }
     }
 
@@ -111,8 +111,8 @@ impl Vec2 {
     }
 
     #[inline]
-    fn eq(&self, other: &Self) -> bool {
-        self.x == other.x && self.y == other.y
+    fn eq(&self, rhs: &Self) -> bool {
+        self.x == rhs.x && self.y == rhs.y
     }
 }
 
