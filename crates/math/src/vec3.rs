@@ -1,18 +1,18 @@
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
 #[derive(Debug, Copy, Clone)]
-pub struct Vec2 {
+pub struct Vec3 {
     pub x: f32,
     pub y: f32,
     pub z: f32,
 }
 
-impl Vec2 {
-    pub fn new(x: f32, y: f32, z: f32) -> Vec2 {
+impl Vec3 {
+    pub fn new(x: f32, y: f32, z: f32) -> Vec3 {
         Self { x: x, y: y, z: z }
     }
 
-    pub fn zero() -> Vec2 {
+    pub fn zero() -> Vec3 {
         Self {
             x: 0.0,
             y: 0.0,
@@ -28,7 +28,7 @@ impl Vec2 {
         (self.x * self.x) + (self.y * self.y) + (self.z * self.z)
     }
 
-    pub fn normalize(&self) -> Vec2 {
+    pub fn normalize(&self) -> Vec3 {
         Self {
             x: self.x / self.magnitude(),
             y: self.y / self.magnitude(),
@@ -36,19 +36,19 @@ impl Vec2 {
         }
     }
 
-    pub fn distance_to(&self, other: &Vec2) -> f32 {
+    pub fn distance_to(&self, other: &Vec3) -> f32 {
         (((self.x - other.x) * (self.x - other.x))
             + ((self.y - other.y) * (self.y - other.y))
             + ((self.z - other.z) * (self.z - other.z)))
             .sqrt()
     }
 
-    pub fn direction_to(&self, other: &Vec2) -> Vec2 {
+    pub fn direction_to(&self, other: &Vec3) -> Vec3 {
         (*other - *self).normalize()
     }
 }
 
-impl AddAssign for Vec2 {
+impl AddAssign for Vec3 {
     fn add_assign(&mut self, rhs: Self) {
         self.x += rhs.x;
         self.y += rhs.y;
@@ -56,7 +56,7 @@ impl AddAssign for Vec2 {
     }
 }
 
-impl SubAssign for Vec2 {
+impl SubAssign for Vec3 {
     fn sub_assign(&mut self, rhs: Self) {
         self.x -= rhs.x;
         self.y -= rhs.y;
@@ -64,7 +64,7 @@ impl SubAssign for Vec2 {
     }
 }
 
-impl MulAssign for Vec2 {
+impl MulAssign for Vec3 {
     fn mul_assign(&mut self, rhs: Self) {
         self.x *= rhs.x;
         self.y *= rhs.y;
@@ -72,7 +72,7 @@ impl MulAssign for Vec2 {
     }
 }
 
-impl DivAssign for Vec2 {
+impl DivAssign for Vec3 {
     fn div_assign(&mut self, rhs: Self) {
         self.x /= rhs.x;
         self.y /= rhs.y;
@@ -80,10 +80,10 @@ impl DivAssign for Vec2 {
     }
 }
 
-impl Add for Vec2 {
-    type Output = Vec2;
+impl Add for Vec3 {
+    type Output = Vec3;
 
-    fn add(self, other: Vec2) -> Vec2 {
+    fn add(self, other: Vec3) -> Vec3 {
         Self {
             x: self.x + other.x,
             y: self.y + other.y,
@@ -92,10 +92,10 @@ impl Add for Vec2 {
     }
 }
 
-impl Sub for Vec2 {
-    type Output = Vec2;
+impl Sub for Vec3 {
+    type Output = Vec3;
 
-    fn sub(self, other: Vec2) -> Vec2 {
+    fn sub(self, other: Vec3) -> Vec3 {
         Self {
             x: self.x - other.x,
             y: self.y - other.y,
@@ -104,10 +104,10 @@ impl Sub for Vec2 {
     }
 }
 
-impl Mul<f32> for Vec2 {
-    type Output = Vec2;
+impl Mul<f32> for Vec3 {
+    type Output = Vec3;
 
-    fn mul(self, scalar: f32) -> Vec2 {
+    fn mul(self, scalar: f32) -> Vec3 {
         Self {
             x: self.x * scalar,
             y: self.y * scalar,
@@ -116,10 +116,10 @@ impl Mul<f32> for Vec2 {
     }
 }
 
-impl Div<f32> for Vec2 {
-    type Output = Vec2;
+impl Div<f32> for Vec3 {
+    type Output = Vec3;
 
-    fn div(self, scalar: f32) -> Vec2 {
+    fn div(self, scalar: f32) -> Vec3 {
         Self {
             x: self.x / scalar,
             y: self.y / scalar,
@@ -128,7 +128,7 @@ impl Div<f32> for Vec2 {
     }
 }
 
-impl PartialEq for Vec2 {
+impl PartialEq for Vec3 {
     fn eq(&self, other: &Self) -> bool {
         self.x == other.x && self.y == other.y && self.y == other.y
     }
