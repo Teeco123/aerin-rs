@@ -1,4 +1,7 @@
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+use std::{
+    f32,
+    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign},
+};
 
 #[derive(Debug, Copy, Clone)]
 pub struct Vec2 {
@@ -7,6 +10,45 @@ pub struct Vec2 {
 }
 
 impl Vec2 {
+    pub const ZERO: Self = Self { x: 0.0, y: 0.0 };
+
+    pub const ONE: Self = Self { x: 1.0, y: 1.0 };
+
+    pub const NEG_ONE: Self = Self { x: -1.0, y: -1.0 };
+
+    pub const X: Self = Self { x: 1.0, y: 0.0 };
+
+    pub const Y: Self = Self { x: 0.0, y: 1.0 };
+
+    pub const NEG_X: Self = Self { x: -1.0, y: 0.0 };
+
+    pub const NEG_Y: Self = Self { x: 0.0, y: -1.0 };
+
+    pub const MIN: Self = Self {
+        x: f32::MIN,
+        y: f32::MIN,
+    };
+
+    pub const MAX: Self = Self {
+        x: f32::MAX,
+        y: f32::MAX,
+    };
+
+    pub const NAN: Self = Self {
+        x: f32::NAN,
+        y: f32::NAN,
+    };
+
+    pub const INFINITY: Self = Self {
+        x: f32::INFINITY,
+        y: f32::INFINITY,
+    };
+
+    pub const NEG_INFINITY: Self = Self {
+        x: f32::NEG_INFINITY,
+        y: f32::NEG_INFINITY,
+    };
+
     #[inline]
     pub fn new(x: f32, y: f32) -> Vec2 {
         Self { x: x, y: y }
