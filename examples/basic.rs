@@ -3,7 +3,11 @@ use std::fs;
 use aerin_rs::{
     app::{App, AppResources},
     ecs::{ECS, components::Component, entity_manager::Entity, system::SystemTrait},
-    renderer::{mesh::Mesh, shader::Shader},
+    math::vec3::Vec3,
+    renderer::{
+        mesh::{Mesh, Vertex},
+        shader::Shader,
+    },
     window::WindowSpecs,
 };
 
@@ -56,11 +60,46 @@ impl SystemTrait for ShaderSystem {
         let shader = Shader::new(gl, vertex_source, fragment_source);
 
         for entity in entities {
-            let vertices: [f32; 18] = [
-                0.0, 1.0, 0.0, 1.0, 0.0, 0.0, -1.0, -1.0, 0.0, 0.0, 1.0, 0.0, 1.0, -1.0, 0.0, 0.0,
-                0.0, 1.0,
+            let vertices: Vec<Vertex> = vec![
+                Vertex {
+                    position: Vec3 {
+                        x: 0.0,
+                        y: 1.0,
+                        z: 0.0,
+                    },
+                    color: Vec3 {
+                        x: 1.0,
+                        y: 0.0,
+                        z: 0.0,
+                    },
+                },
+                Vertex {
+                    position: Vec3 {
+                        x: -1.0,
+                        y: -1.0,
+                        z: 0.0,
+                    },
+                    color: Vec3 {
+                        x: 0.0,
+                        y: 1.0,
+                        z: 0.0,
+                    },
+                },
+                Vertex {
+                    position: Vec3 {
+                        x: 1.0,
+                        y: -1.0,
+                        z: 0.0,
+                    },
+                    color: Vec3 {
+                        x: 0.0,
+                        y: 0.0,
+                        z: 1.0,
+                    },
+                },
             ];
-            let indices: [u32; 3] = [0, 1, 2];
+            let indices: Vec<u32> = vec![0, 1, 2];
+
             let mesh = Mesh::new(gl, &vertices, &indices);
 
             let shader_component = ecs.get_component::<ShaderComponent>(*entity);
