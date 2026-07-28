@@ -56,9 +56,10 @@ impl SystemTrait for ShaderSystem {
         let shader = Shader::new(gl, vertex_source, fragment_source);
 
         for entity in entities {
-            println!("entity: {} start", entity);
-
-            let vertices: [f32; 6] = [0.0, 1.0, -1.0, -1.0, 1.0, -1.0];
+            let vertices: [f32; 18] = [
+                0.0, 1.0, 0.0, 1.0, 0.0, 0.0, -1.0, -1.0, 0.0, 0.0, 1.0, 0.0, 1.0, -1.0, 0.0, 0.0,
+                0.0, 1.0,
+            ];
             let indices: [u32; 3] = [0, 1, 2];
             let mesh = Mesh::new(gl, &vertices, &indices);
 

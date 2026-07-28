@@ -71,9 +71,7 @@ impl ApplicationHandler for App {
         event: winit::event::WindowEvent,
     ) {
         match event {
-            WindowEvent::RedrawRequested => {
-                self.renderer.draw();
-            }
+            WindowEvent::RedrawRequested => {}
             _ => {}
         }
     }

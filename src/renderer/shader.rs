@@ -33,12 +33,12 @@ impl Shader {
 
             gl.compile_shader(vertex_shader);
             if !gl.get_shader_compile_status(vertex_shader) {
-                panic!("{}", gl.get_shader_compile_status(vertex_shader))
+                panic!("{}", gl.get_shader_info_log(vertex_shader))
             }
 
             gl.compile_shader(fragment_shader);
             if !gl.get_shader_compile_status(fragment_shader) {
-                panic!("{}", gl.get_shader_compile_status(fragment_shader))
+                panic!("{}", gl.get_shader_info_log(fragment_shader))
             }
 
             gl.attach_shader(program, vertex_shader);

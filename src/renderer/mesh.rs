@@ -31,9 +31,12 @@ impl Mesh {
             );
             gl.buffer_data_u8_slice(glow::ELEMENT_ARRAY_BUFFER, indices_bytes, glow::STATIC_DRAW);
 
-            let stride = (2 * std::mem::size_of::<f32>()) as i32;
-            gl.vertex_attrib_pointer_f32(0, 2, glow::FLOAT, false, stride, 0);
+            let stride = (6 * std::mem::size_of::<f32>()) as i32;
+            gl.vertex_attrib_pointer_f32(0, 3, glow::FLOAT, false, stride, 0);
             gl.enable_vertex_attrib_array(0);
+
+            gl.vertex_attrib_pointer_f32(1, 3, glow::FLOAT, false, stride, 12);
+            gl.enable_vertex_attrib_array(1);
 
             gl.bind_vertex_array(None);
 
