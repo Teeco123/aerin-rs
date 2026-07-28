@@ -3,13 +3,16 @@ use std::fs;
 use aerin_rs::{
     app::{App, AppResources},
     ecs::{ECS, components::Component, entity_manager::Entity, system::SystemTrait},
-    renderer::shader::Shader,
+    renderer::{mesh::Mesh, shader::Shader},
     window::WindowSpecs,
 };
 
-#[allow(dead_code)]
 pub struct ShaderComponent {
     shader: Option<Shader>,
+}
+
+pub struct MeshComponent {
+    mesh: Option<Mesh>,
 }
 
 #[derive(Default)]
@@ -21,6 +24,15 @@ impl Component for ShaderComponent {
     }
     fn type_of() -> &'static str {
         "Shader"
+    }
+}
+
+impl Component for MeshComponent {
+    fn default() -> Self {
+        Self { mesh: None }
+    }
+    fn type_of() -> &'static str {
+        "Mesh"
     }
 }
 
@@ -45,8 +57,16 @@ impl SystemTrait for ShaderSystem {
 
         for entity in entities {
             println!("entity: {} start", entity);
-            let component = ecs.get_component::<ShaderComponent>(*entity);
-            component.shader = Some(shader.clone());
+
+            let vertices: [f32; 6] = [0.0, 1.0, -1.0, -1.0, 1.0, -1.0];
+            let indices: [u32; 3] = [0, 1, 2];
+            let mesh = Mesh::new(gl, &vertices, &indices);
+
+            let shader_component = ecs.get_component::<ShaderComponent>(*entity);
+            shader_component.shader = Some(shader.clone());
+
+            let mesh_component = ecs.get_component::<MeshComponent>(*entity);
+            mesh_component.mesh = Some(mesh.clone());
         }
     }
     fn update(&mut self, entities: &mut [Entity], ecs: &mut ECS, res: &mut AppResources) {
@@ -56,7 +76,9 @@ impl SystemTrait for ShaderSystem {
             println!("entity: {} update", entity);
             let component = ecs.get_component::<ShaderComponent>(*entity);
             component.shader.as_ref().unwrap().bind(gl);
-            res.renderer.draw();
+
+            let mesh = ecs.get_component::<MeshComponent>(*entity);
+            mesh.mesh.as_ref().unwrap().draw(gl);
         }
     }
     fn fixed_update(&mut self, _entities: &mut [Entity]) {}
@@ -74,11 +96,14 @@ fn main() {
     app.ecs.create_entity();
 
     app.ecs.register_component::<ShaderComponent>();
+    app.ecs.register_component::<MeshComponent>();
     app.ecs.register_system::<ShaderSystem>();
 
     app.ecs.update_signature::<ShaderSystem, ShaderComponent>();
+    app.ecs.update_signature::<ShaderSystem, MeshComponent>();
 
     app.ecs.insert_component::<ShaderComponent>(0);
+    app.ecs.insert_component::<MeshComponent>(0);
 
     app.run();
 }

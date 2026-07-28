@@ -1,3 +1,4 @@
+pub mod mesh;
 pub mod shader;
 
 use std::num::NonZeroU32;
@@ -77,14 +78,6 @@ impl Renderer {
 
     pub fn get_gl(&self) -> &Context {
         self.gl.as_ref().unwrap()
-    }
-
-    pub fn draw(&self) {
-        let gl = self.gl.as_ref().unwrap();
-
-        unsafe {
-            gl.draw_arrays(glow::TRIANGLES, 0, 3);
-        }
     }
 
     pub fn clear(&self) {

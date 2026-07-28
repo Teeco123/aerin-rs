@@ -13,11 +13,6 @@ pub struct Shader {
 impl Shader {
     pub fn new(gl: &Context, vertex_source: String, fragment_source: String) -> Self {
         let id = unsafe {
-            let vertex_array = gl
-                .create_vertex_array()
-                .expect("Cannot create vertex array");
-            gl.bind_vertex_array(Some(vertex_array));
-
             let program = gl.create_program().expect("Cannot create program");
 
             let vertex_shader = gl
