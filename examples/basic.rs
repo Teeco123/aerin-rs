@@ -3,7 +3,7 @@ use std::fs;
 use aerin_rs::{
     app::{App, AppResources},
     ecs::{ECS, components::Component, entity_manager::Entity, system::SystemTrait},
-    math::vec3::Vec3,
+    math::{mat4::Mat4, vec3::Vec3, vec4::Vec4},
     renderer::{
         mesh::{Mesh, Vertex},
         shader::Shader,
@@ -18,6 +18,10 @@ pub struct ShaderComponent {
 
 pub struct MeshComponent {
     mesh: Option<Mesh>,
+}
+
+pub struct RotationComponent {
+    angle: f32,
 }
 
 #[derive(Default)]
@@ -38,6 +42,15 @@ impl Component for MeshComponent {
     }
     fn type_of() -> &'static str {
         "Mesh"
+    }
+}
+
+impl Component for RotationComponent {
+    fn default() -> Self {
+        Self { angle: 0.0 }
+    }
+    fn type_of() -> &'static str {
+        "Rotation"
     }
 }
 
@@ -113,12 +126,29 @@ impl SystemTrait for ShaderSystem {
     fn update(&mut self, entities: &mut [Entity], ecs: &mut ECS, res: &mut AppResources) {
         let gl = res.renderer.get_gl();
 
-        println!("pressed {}", res.input.is_key_pressed(KeyCode::KeyC));
-        println!("held {}", res.input.is_key_held(KeyCode::KeyC));
+        println!("pressed {}", res.input.is_key_pressed(KeyCode::KeyA));
 
         for entity in entities {
             let component = ecs.get_component::<ShaderComponent>(*entity);
             component.shader.as_ref().unwrap().bind(gl);
+
+            let rotation = ecs.get_component::<RotationComponent>(*entity);
+            if res.input.is_key_held(KeyCode::KeyA) {
+                rotation.angle += 1.0;
+            }
+
+            if res.input.is_key_held(KeyCode::KeyD) {
+                rotation.angle -= 1.0;
+            }
+
+            let rotate = Mat4::rotate_z(rotation.angle.to_radians()).to_array();
+
+            let component = ecs.get_component::<ShaderComponent>(*entity);
+            component
+                .shader
+                .as_ref()
+                .unwrap()
+                .set_uniform_mat4(gl, "u_rotate", &rotate);
 
             let mesh = ecs.get_component::<MeshComponent>(*entity);
             mesh.mesh.as_ref().unwrap().draw(gl);
@@ -140,13 +170,17 @@ fn main() {
 
     app.ecs.register_component::<ShaderComponent>();
     app.ecs.register_component::<MeshComponent>();
+    app.ecs.register_component::<RotationComponent>();
     app.ecs.register_system::<ShaderSystem>();
 
     app.ecs.update_signature::<ShaderSystem, ShaderComponent>();
     app.ecs.update_signature::<ShaderSystem, MeshComponent>();
+    app.ecs
+        .update_signature::<ShaderSystem, RotationComponent>();
 
     app.ecs.insert_component::<ShaderComponent>(0);
     app.ecs.insert_component::<MeshComponent>(0);
+    app.ecs.insert_component::<RotationComponent>(0);
 
     app.run();
 }
