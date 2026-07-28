@@ -6,6 +6,7 @@ use winit::{
 
 use crate::{
     ecs::ECS,
+    input::InputManager,
     renderer::Renderer,
     window::{Window, WindowSpecs},
 };
@@ -13,12 +14,14 @@ use crate::{
 pub struct App {
     pub window: Window,
     pub renderer: Renderer,
+    pub input: InputManager,
     pub ecs: ECS,
 }
 
 pub struct AppResources<'a> {
     pub window: &'a mut Window,
     pub renderer: &'a mut Renderer,
+    pub input: &'a mut InputManager,
 }
 
 impl App {
@@ -26,6 +29,7 @@ impl App {
         Self {
             window: Window::new(window_specs),
             renderer: Renderer::new(),
+            input: InputManager::new(),
             ecs: ECS::new(),
         }
     }
@@ -47,6 +51,7 @@ impl ApplicationHandler for App {
         let mut res = AppResources {
             window: &mut self.window,
             renderer: &mut self.renderer,
+            input: &mut self.input,
         };
 
         self.ecs.start(&mut res);
@@ -56,12 +61,14 @@ impl ApplicationHandler for App {
         let mut res = AppResources {
             window: &mut self.window,
             renderer: &mut self.renderer,
+            input: &mut self.input,
         };
 
         res.renderer.clear();
         self.ecs.update(&mut res);
         res.window.request_redraw();
         res.renderer.swap_buffers();
+        res.input.clear_input();
     }
 
     fn window_event(
@@ -72,6 +79,7 @@ impl ApplicationHandler for App {
     ) {
         match event {
             WindowEvent::RedrawRequested => {}
+            WindowEvent::KeyboardInput { event, .. } => self.input.process_keyboard(event),
             _ => {}
         }
     }

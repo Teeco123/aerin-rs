@@ -10,6 +10,7 @@ use aerin_rs::{
     },
     window::WindowSpecs,
 };
+use winit::keyboard::KeyCode;
 
 pub struct ShaderComponent {
     shader: Option<Shader>,
@@ -112,8 +113,10 @@ impl SystemTrait for ShaderSystem {
     fn update(&mut self, entities: &mut [Entity], ecs: &mut ECS, res: &mut AppResources) {
         let gl = res.renderer.get_gl();
 
+        println!("pressed {}", res.input.is_key_pressed(KeyCode::KeyC));
+        println!("held {}", res.input.is_key_held(KeyCode::KeyC));
+
         for entity in entities {
-            println!("entity: {} update", entity);
             let component = ecs.get_component::<ShaderComponent>(*entity);
             component.shader.as_ref().unwrap().bind(gl);
 
