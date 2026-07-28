@@ -73,4 +73,11 @@ impl Shader {
             gl.use_program(Some(self.id.0));
         }
     }
+
+    pub fn set_uniform_mat4(&self, gl: &Context, name: &str, val: &[f32]) {
+        unsafe {
+            let location = gl.get_uniform_location(self.id.0, name);
+            gl.uniform_matrix_4_f32_slice(location.as_ref(), false, val);
+        }
+    }
 }
