@@ -9,14 +9,40 @@ pub struct Mat4 {
 }
 
 impl Mat4 {
+    pub const ZERO: Self = Self::new(Vec4::ZERO, Vec4::ZERO, Vec4::ZERO, Vec4::ZERO);
+
+    pub const IDENTITY: Self = Self::new(Vec4::X, Vec4::Y, Vec4::Z, Vec4::W);
+
     #[inline]
-    pub fn new(x_col: Vec4, y_col: Vec4, z_col: Vec4, w_col: Vec4) -> Mat4 {
+    pub const fn new(x_col: Vec4, y_col: Vec4, z_col: Vec4, w_col: Vec4) -> Mat4 {
         Self {
             x_col,
             y_col,
             z_col,
             w_col,
         }
+    }
+
+    #[inline]
+    pub const fn to_array(&self) -> [f32; 16] {
+        [
+            self.x_col.x,
+            self.x_col.y,
+            self.x_col.z,
+            self.x_col.w,
+            self.y_col.x,
+            self.y_col.y,
+            self.y_col.z,
+            self.y_col.w,
+            self.z_col.x,
+            self.z_col.y,
+            self.z_col.z,
+            self.z_col.w,
+            self.w_col.x,
+            self.w_col.y,
+            self.w_col.z,
+            self.w_col.w,
+        ]
     }
 
     #[inline]
@@ -50,27 +76,5 @@ impl Mat4 {
             z_col: Vec4::Z,
             w_col: Vec4::W,
         }
-    }
-
-    #[inline]
-    pub fn to_array(&self) -> [f32; 16] {
-        [
-            self.x_col.x,
-            self.x_col.y,
-            self.x_col.z,
-            self.x_col.w,
-            self.y_col.x,
-            self.y_col.y,
-            self.y_col.z,
-            self.y_col.w,
-            self.z_col.x,
-            self.z_col.y,
-            self.z_col.z,
-            self.z_col.w,
-            self.w_col.x,
-            self.w_col.y,
-            self.w_col.z,
-            self.w_col.w,
-        ]
     }
 }
