@@ -9,6 +9,117 @@ pub struct Vec4 {
 }
 
 impl Vec4 {
+    pub const ZERO: Self = Self {
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
+        w: 0.0,
+    };
+
+    pub const ONE: Self = Self {
+        x: 1.0,
+        y: 1.0,
+        z: 1.0,
+        w: 1.0,
+    };
+
+    pub const NEG_ONE: Self = Self {
+        x: -1.0,
+        y: -1.0,
+        z: -1.0,
+        w: -1.0,
+    };
+
+    pub const X: Self = Self {
+        x: 1.0,
+        y: 0.0,
+        z: 0.0,
+        w: 0.0,
+    };
+
+    pub const Y: Self = Self {
+        x: 0.0,
+        y: 1.0,
+        z: 0.0,
+        w: 0.0,
+    };
+
+    pub const Z: Self = Self {
+        x: 0.0,
+        y: 0.0,
+        z: 1.0,
+        w: 0.0,
+    };
+
+    pub const W: Self = Self {
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
+        w: 1.0,
+    };
+
+    pub const NEG_X: Self = Self {
+        x: -1.0,
+        y: 0.0,
+        z: 0.0,
+        w: 0.0,
+    };
+
+    pub const NEG_Y: Self = Self {
+        x: 0.0,
+        y: -1.0,
+        z: 0.0,
+        w: 0.0,
+    };
+
+    pub const NEG_Z: Self = Self {
+        x: 0.0,
+        y: 0.0,
+        z: -1.0,
+        w: 0.0,
+    };
+
+    pub const NEG_W: Self = Self {
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
+        w: -1.0,
+    };
+
+    pub const MIN: Self = Self {
+        x: f32::MIN,
+        y: f32::MIN,
+        z: f32::MIN,
+        w: f32::MIN,
+    };
+
+    pub const MAX: Self = Self {
+        x: f32::MAX,
+        y: f32::MAX,
+        z: f32::MAX,
+        w: f32::MAX,
+    };
+
+    pub const NAN: Self = Self {
+        x: f32::NAN,
+        y: f32::NAN,
+        z: f32::NAN,
+        w: f32::NAN,
+    };
+
+    pub const INFINITY: Self = Self {
+        x: f32::INFINITY,
+        y: f32::INFINITY,
+        z: f32::INFINITY,
+        w: f32::INFINITY,
+    };
+
+    pub const NEG_INFINITY: Self = Self {
+        x: f32::NEG_INFINITY,
+        y: f32::NEG_INFINITY,
+        z: f32::NEG_INFINITY,
+        w: f32::NEG_INFINITY,
+    };
     #[inline]
     pub fn new(x: f32, y: f32, z: f32, w: f32) -> Vec4 {
         Self { x, y, z, w }
