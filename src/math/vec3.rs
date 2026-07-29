@@ -8,6 +8,90 @@ pub struct Vec3 {
 }
 
 impl Vec3 {
+    pub const ZERO: Self = Self {
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
+    };
+
+    pub const ONE: Self = Self {
+        x: 1.0,
+        y: 1.0,
+        z: 1.0,
+    };
+
+    pub const NEG_ONE: Self = Self {
+        x: -1.0,
+        y: -1.0,
+        z: -1.0,
+    };
+
+    pub const X: Self = Self {
+        x: 1.0,
+        y: 0.0,
+        z: 0.0,
+    };
+
+    pub const Y: Self = Self {
+        x: 0.0,
+        y: 1.0,
+        z: 0.0,
+    };
+
+    pub const Z: Self = Self {
+        x: 0.0,
+        y: 0.0,
+        z: 1.0,
+    };
+
+    pub const NEG_X: Self = Self {
+        x: -1.0,
+        y: 0.0,
+        z: 0.0,
+    };
+
+    pub const NEG_Y: Self = Self {
+        x: 0.0,
+        y: -1.0,
+        z: 0.0,
+    };
+
+    pub const NEG_Z: Self = Self {
+        x: 0.0,
+        y: 0.0,
+        z: -1.0,
+    };
+
+    pub const MIN: Self = Self {
+        x: f32::MIN,
+        y: f32::MIN,
+        z: f32::MIN,
+    };
+
+    pub const MAX: Self = Self {
+        x: f32::MAX,
+        y: f32::MAX,
+        z: f32::MAX,
+    };
+
+    pub const NAN: Self = Self {
+        x: f32::NAN,
+        y: f32::NAN,
+        z: f32::NAN,
+    };
+
+    pub const INFINITY: Self = Self {
+        x: f32::INFINITY,
+        y: f32::INFINITY,
+        z: f32::INFINITY,
+    };
+
+    pub const NEG_INFINITY: Self = Self {
+        x: f32::NEG_INFINITY,
+        y: f32::NEG_INFINITY,
+        z: f32::NEG_INFINITY,
+    };
+
     #[inline]
     pub fn new(x: f32, y: f32, z: f32) -> Vec3 {
         Self { x: x, y: y, z: z }
