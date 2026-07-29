@@ -165,6 +165,16 @@ impl Vec3 {
     pub fn eq(&self, rhs: &Self) -> bool {
         self.x == rhs.x && self.y == rhs.y && self.y == rhs.y
     }
+
+    #[inline]
+    pub fn magnitude(self) -> f32 {
+        (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
+    }
+
+    #[inline]
+    pub fn normalize(self) -> Self {
+        self / self.magnitude()
+    }
 }
 
 impl Add for Vec3 {
