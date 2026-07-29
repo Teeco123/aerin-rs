@@ -23,10 +23,10 @@ impl Mat4 {
     pub fn rotate_x(angle: f32) -> Self {
         let (sin, cos) = angle.sin_cos();
         Self {
-            x_col: Vec4::new(1.0, 0.0, 0.0, 0.0),
+            x_col: Vec4::X,
             y_col: Vec4::new(0.0, cos, sin, 0.0),
             z_col: Vec4::new(0.0, -sin, cos, 0.0),
-            w_col: Vec4::new(0.0, 0.0, 0.0, 1.0),
+            w_col: Vec4::W,
         }
     }
 
@@ -35,9 +35,9 @@ impl Mat4 {
         let (sin, cos) = angle.sin_cos();
         Self {
             x_col: Vec4::new(cos, 0.0, -sin, 0.0),
-            y_col: Vec4::new(0.0, 1.0, 0.0, 0.0),
+            y_col: Vec4::Y,
             z_col: Vec4::new(sin, 0.0, cos, 0.0),
-            w_col: Vec4::new(0.0, 0.0, 0.0, 1.0),
+            w_col: Vec4::W,
         }
     }
 
@@ -47,8 +47,8 @@ impl Mat4 {
         Self {
             x_col: Vec4::new(cos, sin, 0.0, 0.0),
             y_col: Vec4::new(-sin, cos, 0.0, 0.0),
-            z_col: Vec4::new(0.0, 0.0, 1.0, 0.0),
-            w_col: Vec4::new(0.0, 0.0, 0.0, 1.0),
+            z_col: Vec4::Z,
+            w_col: Vec4::W,
         }
     }
 
