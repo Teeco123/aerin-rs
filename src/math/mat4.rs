@@ -1,4 +1,4 @@
-use crate::math::vec4::Vec4;
+use crate::math::{vec3::Vec3, vec4::Vec4};
 
 #[derive(Debug, Copy, Clone)]
 pub struct Mat4 {
@@ -76,5 +76,15 @@ impl Mat4 {
             z_col: Vec4::Z,
             w_col: Vec4::W,
         }
+    }
+
+    #[inline]
+    pub fn translate(position: Vec3) -> Self {
+        Mat4::new(
+            Vec4::X,
+            Vec4::Y,
+            Vec4::Z,
+            Vec4::new(position.x, position.y, position.z, 1.0),
+        )
     }
 }
