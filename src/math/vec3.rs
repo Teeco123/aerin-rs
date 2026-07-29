@@ -93,12 +93,12 @@ impl Vec3 {
     };
 
     #[inline]
-    pub fn new(x: f32, y: f32, z: f32) -> Vec3 {
+    pub const fn new(x: f32, y: f32, z: f32) -> Vec3 {
         Self { x: x, y: y, z: z }
     }
 
     #[inline]
-    pub fn add(self, rhs: Vec3) -> Vec3 {
+    pub const fn add(self, rhs: Vec3) -> Vec3 {
         Self {
             x: self.x + rhs.x,
             y: self.y + rhs.y,
@@ -107,14 +107,14 @@ impl Vec3 {
     }
 
     #[inline]
-    pub fn add_assign(&mut self, rhs: Self) {
+    pub const fn add_assign(&mut self, rhs: Self) {
         self.x += rhs.x;
         self.y += rhs.y;
         self.z += rhs.z;
     }
 
     #[inline]
-    pub fn sub(self, rhs: Vec3) -> Vec3 {
+    pub const fn sub(self, rhs: Vec3) -> Vec3 {
         Self {
             x: self.x - rhs.x,
             y: self.y - rhs.y,
@@ -123,14 +123,14 @@ impl Vec3 {
     }
 
     #[inline]
-    pub fn sub_assign(&mut self, rhs: Self) {
+    pub const fn sub_assign(&mut self, rhs: Self) {
         self.x -= rhs.x;
         self.y -= rhs.y;
         self.z -= rhs.z;
     }
 
     #[inline]
-    pub fn mul(self, rhs: f32) -> Vec3 {
+    pub const fn mul(self, rhs: f32) -> Vec3 {
         Self {
             x: self.x * rhs,
             y: self.y * rhs,
@@ -139,14 +139,14 @@ impl Vec3 {
     }
 
     #[inline]
-    pub fn mul_assign(&mut self, rhs: Self) {
+    pub const fn mul_assign(&mut self, rhs: Self) {
         self.x *= rhs.x;
         self.y *= rhs.y;
         self.z *= rhs.z;
     }
 
     #[inline]
-    pub fn div(self, rhs: f32) -> Vec3 {
+    pub const fn div(self, rhs: f32) -> Vec3 {
         Self {
             x: self.x / rhs,
             y: self.y / rhs,
@@ -155,14 +155,14 @@ impl Vec3 {
     }
 
     #[inline]
-    pub fn div_assign(&mut self, rhs: Self) {
+    pub const fn div_assign(&mut self, rhs: Self) {
         self.x /= rhs.x;
         self.y /= rhs.y;
         self.z /= rhs.z;
     }
 
     #[inline]
-    pub fn eq(&self, rhs: &Self) -> bool {
+    pub const fn eq(&self, rhs: &Self) -> bool {
         self.x == rhs.x && self.y == rhs.y && self.y == rhs.y
     }
 

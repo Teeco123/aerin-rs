@@ -50,12 +50,12 @@ impl Vec2 {
     };
 
     #[inline]
-    pub fn new(x: f32, y: f32) -> Vec2 {
+    pub const fn new(x: f32, y: f32) -> Vec2 {
         Self { x: x, y: y }
     }
 
     #[inline]
-    pub fn add(self, rhs: Vec2) -> Vec2 {
+    pub const fn add(self, rhs: Vec2) -> Vec2 {
         Self {
             x: self.x + rhs.x,
             y: self.y + rhs.y,
@@ -63,13 +63,13 @@ impl Vec2 {
     }
 
     #[inline]
-    pub fn add_assign(&mut self, rhs: Self) {
+    pub const fn add_assign(&mut self, rhs: Self) {
         self.x += rhs.x;
         self.y += rhs.y;
     }
 
     #[inline]
-    pub fn sub(self, rhs: Vec2) -> Vec2 {
+    pub const fn sub(self, rhs: Vec2) -> Vec2 {
         Self {
             x: self.x - rhs.x,
             y: self.y - rhs.y,
@@ -77,13 +77,13 @@ impl Vec2 {
     }
 
     #[inline]
-    pub fn sub_assign(&mut self, rhs: Self) {
+    pub const fn sub_assign(&mut self, rhs: Self) {
         self.x -= rhs.x;
         self.y -= rhs.y;
     }
 
     #[inline]
-    pub fn mul(self, rhs: f32) -> Vec2 {
+    pub const fn mul(self, rhs: f32) -> Vec2 {
         Self {
             x: self.x * rhs,
             y: self.y * rhs,
@@ -91,13 +91,13 @@ impl Vec2 {
     }
 
     #[inline]
-    pub fn mul_assign(&mut self, rhs: Self) {
+    pub const fn mul_assign(&mut self, rhs: Self) {
         self.x *= rhs.x;
         self.y *= rhs.y;
     }
 
     #[inline]
-    pub fn div(self, rhs: f32) -> Vec2 {
+    pub const fn div(self, rhs: f32) -> Vec2 {
         Self {
             x: self.x / rhs,
             y: self.y / rhs,
@@ -105,13 +105,13 @@ impl Vec2 {
     }
 
     #[inline]
-    pub fn div_assign(&mut self, rhs: Self) {
+    pub const fn div_assign(&mut self, rhs: Self) {
         self.x /= rhs.x;
         self.y /= rhs.y;
     }
 
     #[inline]
-    fn eq(&self, rhs: &Self) -> bool {
+    pub const fn eq(&self, rhs: &Self) -> bool {
         self.x == rhs.x && self.y == rhs.y
     }
 
