@@ -20,8 +20,8 @@ pub struct MeshComponent {
     mesh: Option<Mesh>,
 }
 
-pub struct RotationComponent {
-    angle: f32,
+pub struct PositionComponent {
+    position: Vec3,
 }
 
 #[derive(Default)]
@@ -45,12 +45,14 @@ impl Component for MeshComponent {
     }
 }
 
-impl Component for RotationComponent {
+impl Component for PositionComponent {
     fn default() -> Self {
-        Self { angle: 0.0 }
+        Self {
+            position: Vec3::ZERO,
+        }
     }
     fn type_of() -> &'static str {
-        "Rotation"
+        "Position"
     }
 }
 
@@ -132,23 +134,38 @@ impl SystemTrait for ShaderSystem {
             let component = ecs.get_component::<ShaderComponent>(*entity);
             component.shader.as_ref().unwrap().bind(gl);
 
-            let rotation = ecs.get_component::<RotationComponent>(*entity);
+            let pos = ecs.get_component::<PositionComponent>(*entity);
             if res.input.is_key_held(KeyCode::KeyA) {
-                rotation.angle += 1.0;
+                pos.position.x -= 0.1;
             }
 
             if res.input.is_key_held(KeyCode::KeyD) {
-                rotation.angle -= 1.0;
+                pos.position.x += 0.1;
             }
 
-            let rotate = Mat4::rotate_z(rotation.angle.to_radians()).to_array();
+            if res.input.is_key_held(KeyCode::KeyS) {
+                pos.position.y -= 0.1;
+            }
+
+            if res.input.is_key_held(KeyCode::KeyW) {
+                pos.position.y += 0.1;
+            }
+
+            let model = Mat4::rotate_z(0.0);
+            let view =
+                Mat4::translate(Vec3::new(-pos.position.x, -pos.position.y, -pos.position.z));
 
             let component = ecs.get_component::<ShaderComponent>(*entity);
             component
                 .shader
                 .as_ref()
                 .unwrap()
-                .set_uniform_mat4(gl, "u_rotate", &rotate);
+                .set_uniform_mat4(gl, "u_model", &model.to_array());
+            component
+                .shader
+                .as_ref()
+                .unwrap()
+                .set_uniform_mat4(gl, "u_view", &view.to_array());
 
             let mesh = ecs.get_component::<MeshComponent>(*entity);
             mesh.mesh.as_ref().unwrap().draw(gl);
@@ -170,17 +187,17 @@ fn main() {
 
     app.ecs.register_component::<ShaderComponent>();
     app.ecs.register_component::<MeshComponent>();
-    app.ecs.register_component::<RotationComponent>();
+    app.ecs.register_component::<PositionComponent>();
     app.ecs.register_system::<ShaderSystem>();
 
     app.ecs.update_signature::<ShaderSystem, ShaderComponent>();
     app.ecs.update_signature::<ShaderSystem, MeshComponent>();
     app.ecs
-        .update_signature::<ShaderSystem, RotationComponent>();
+        .update_signature::<ShaderSystem, PositionComponent>();
 
     app.ecs.insert_component::<ShaderComponent>(0);
     app.ecs.insert_component::<MeshComponent>(0);
-    app.ecs.insert_component::<RotationComponent>(0);
+    app.ecs.insert_component::<PositionComponent>(0);
 
     app.run();
 }

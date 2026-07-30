@@ -79,7 +79,7 @@ impl Mat4 {
     }
 
     #[inline]
-    pub fn translate(position: Vec3) -> Self {
+    pub const fn translate(position: Vec3) -> Self {
         Mat4::new(
             Vec4::X,
             Vec4::Y,
