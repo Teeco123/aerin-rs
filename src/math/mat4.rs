@@ -87,4 +87,14 @@ impl Mat4 {
             Vec4::new(position.x, position.y, position.z, 1.0),
         )
     }
+
+    #[inline]
+    pub const fn scale(scale: Vec3) -> Self {
+        Mat4::new(
+            Vec4::new(scale.x, 0.0, 0.0, 0.0),
+            Vec4::new(0.0, scale.y, 0.0, 0.0),
+            Vec4::new(0.0, 0.0, scale.z, 0.0),
+            Vec4::W,
+        )
+    }
 }
