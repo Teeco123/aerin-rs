@@ -1,6 +1,6 @@
 use winit::{
     application::ApplicationHandler,
-    event::WindowEvent,
+    event::{DeviceEvent, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
 };
 
@@ -80,6 +80,18 @@ impl ApplicationHandler for App {
         match event {
             WindowEvent::RedrawRequested => {}
             WindowEvent::KeyboardInput { event, .. } => self.input.process_keyboard(event),
+            _ => {}
+        }
+    }
+
+    fn device_event(
+        &mut self,
+        _event_loop: &winit::event_loop::ActiveEventLoop,
+        _device_id: winit::event::DeviceId,
+        event: winit::event::DeviceEvent,
+    ) {
+        match event {
+            DeviceEvent::MouseMotion { delta } => self.input.process_mouse_movement(delta),
             _ => {}
         }
     }

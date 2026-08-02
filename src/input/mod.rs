@@ -14,7 +14,7 @@ pub struct InputManager {
     keys_pressed: HashSet<KeyCode>,
     keys_released: HashSet<KeyCode>,
 
-    cursor_position: (f64, f64),
+    cursor_delta: (f64, f64),
 }
 impl InputManager {
     pub(crate) fn new() -> Self {
@@ -54,5 +54,9 @@ impl InputManager {
                 }
             }
         }
+    }
+
+    pub(crate) fn process_mouse_movement(&mut self, delta: (f64, f64)) {
+        self.cursor_delta = delta;
     }
 }
