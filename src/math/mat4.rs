@@ -97,4 +97,21 @@ impl Mat4 {
             Vec4::W,
         )
     }
+
+    #[inline]
+    pub fn projection(fov: f32, width: f32, height: f32, near: f32, far: f32) -> Self {
+        let aspect_ratio = width / height;
+        let focal_length = 1.0 / (fov.to_radians() / 2.0).tan();
+
+        let m00 = focal_length / aspect_ratio;
+        let m22 = (far + near) / (near - far);
+        let m32 = (2.0 * near * far) / (near - far);
+
+        Mat4::new(
+            Vec4::new(m00, 0.0, 0.0, 0.0),
+            Vec4::new(0.0, focal_length, 0.0, 0.0),
+            Vec4::new(0.0, 0.0, m22, -1.0),
+            Vec4::new(0.0, 0.0, m32, 0.0),
+        )
+    }
 }

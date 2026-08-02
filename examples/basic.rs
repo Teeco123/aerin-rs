@@ -144,16 +144,17 @@ impl SystemTrait for ShaderSystem {
             }
 
             if res.input.is_key_held(KeyCode::KeyS) {
-                pos.position.y -= 0.1;
+                pos.position.z += 0.1;
             }
 
             if res.input.is_key_held(KeyCode::KeyW) {
-                pos.position.y += 0.1;
+                pos.position.z -= 0.1;
             }
 
-            let model = Mat4::rotate_z(0.0);
+            let model = Mat4::rotate_z(45.0_f32.to_radians());
             let view =
                 Mat4::translate(Vec3::new(-pos.position.x, -pos.position.y, -pos.position.z));
+            let projection = Mat4::projection(60.0, 800.0, 800.0, 0.5, 20.0);
 
             let component = ecs.get_component::<ShaderComponent>(*entity);
             component
@@ -166,6 +167,11 @@ impl SystemTrait for ShaderSystem {
                 .as_ref()
                 .unwrap()
                 .set_uniform_mat4(gl, "u_view", &view.to_array());
+            component.shader.as_ref().unwrap().set_uniform_mat4(
+                gl,
+                "u_projection",
+                &projection.to_array(),
+            );
 
             let mesh = ecs.get_component::<MeshComponent>(*entity);
             mesh.mesh.as_ref().unwrap().draw(gl);
