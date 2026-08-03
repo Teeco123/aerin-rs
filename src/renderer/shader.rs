@@ -1,4 +1,4 @@
-use glow::{Context, FRAGMENT_SHADER, HasContext, NativeProgram, VERTEX_SHADER};
+use glow::{Context, FRAGMENT_SHADER, HasContext, NativeBuffer, NativeProgram, VERTEX_SHADER};
 
 pub type ShaderType = u32;
 
@@ -78,6 +78,17 @@ impl Shader {
         unsafe {
             let location = gl.get_uniform_location(self.id.0, name);
             gl.uniform_matrix_4_f32_slice(location.as_ref(), false, val);
+        }
+    }
+
+    pub fn create_ubo(gl: &Context, index: u32, size: i32) -> NativeBuffer {
+        unsafe {
+            let ubo = gl.create_buffer().expect("Failed to create UBO");
+            gl.bind_buffer(glow::UNIFORM_BUFFER, Some(ubo));
+            gl.buffer_data_size(glow::UNIFORM_BUFFER, size, glow::DYNAMIC_DRAW);
+            gl.bind_buffer_base(glow::UNIFORM_BUFFER, index, Some(ubo));
+            gl.bind_buffer(glow::UNIFORM_BUFFER, None);
+            ubo
         }
     }
 }
