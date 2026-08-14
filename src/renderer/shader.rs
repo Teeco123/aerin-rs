@@ -81,6 +81,13 @@ impl Shader {
         }
     }
 
+    pub fn set_uniform_f32(&self, gl: &Context, name: &str, val: f32) {
+        unsafe {
+            let location = gl.get_uniform_location(self.id.0, name);
+            gl.uniform_1_f32(location.as_ref(), val);
+        }
+    }
+
     pub fn create_ubo(gl: &Context, index: u32, size: i32) -> NativeBuffer {
         unsafe {
             let ubo = gl.create_buffer().expect("Failed to create UBO");
