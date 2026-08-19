@@ -1,3 +1,5 @@
+pub mod builder;
+
 use winit::{
     application::ApplicationHandler,
     event::{DeviceEvent, WindowEvent},
@@ -8,11 +10,12 @@ use crate::{
     ecs::ECS,
     input::InputManager,
     renderer::Renderer,
-    window::{Window, WindowSpecs},
+    window::{Window, builder::WindowBuilder},
 };
 
 pub struct App {
-    pub window: Window,
+    window_builder: Option<WindowBuilder>,
+    pub window: Option<Window>,
     pub renderer: Renderer,
     pub input: InputManager,
     pub ecs: ECS,
@@ -25,15 +28,6 @@ pub struct AppResources<'a> {
 }
 
 impl App {
-    pub fn new(window_specs: WindowSpecs) -> Self {
-        Self {
-            window: Window::new(window_specs),
-            renderer: Renderer::new(),
-            input: InputManager::new(),
-            ecs: ECS::new(),
-        }
-    }
-
     pub fn run(&mut self) {
         let event_loop = EventLoop::new().unwrap();
         event_loop.set_control_flow(ControlFlow::Poll);
@@ -43,13 +37,19 @@ impl App {
 
 impl ApplicationHandler for App {
     fn resumed(&mut self, event_loop: &winit::event_loop::ActiveEventLoop) {
-        self.window.init(event_loop);
-        let window_handle = self.window.get_window_handle();
-        let display_handle = self.window.get_display_handle();
+        if self.window.is_none() {
+            let builder = self.window_builder.take().unwrap();
+            let window = builder.build(event_loop);
+
+            self.window = Some(window.unwrap())
+        }
+
+        let window_handle = self.window.as_ref().unwrap().get_window_handle();
+        let display_handle = self.window.as_ref().unwrap().get_display_handle();
         self.renderer.init(window_handle, display_handle);
 
         let mut res = AppResources {
-            window: &mut self.window,
+            window: &mut self.window.as_mut().unwrap(),
             renderer: &mut self.renderer,
             input: &mut self.input,
         };
@@ -59,7 +59,7 @@ impl ApplicationHandler for App {
 
     fn about_to_wait(&mut self, _event_loop: &winit::event_loop::ActiveEventLoop) {
         let mut res = AppResources {
-            window: &mut self.window,
+            window: &mut self.window.as_mut().unwrap(),
             renderer: &mut self.renderer,
             input: &mut self.input,
         };

@@ -1,14 +1,14 @@
 use std::fs;
 
 use aerin_rs::{
-    app::{App, AppResources},
+    app::{AppResources, builder::AppBuilder},
     ecs::{ECS, components::Component, entity_manager::Entity, system::SystemTrait},
-    math::{mat4::Mat4, vec3::Vec3, vec4::Vec4},
+    math::{mat4::Mat4, vec3::Vec3},
     renderer::{
         mesh::{Mesh, Vertex},
         shader::Shader,
     },
-    window::WindowSpecs,
+    window::builder::WindowBuilder,
 };
 use glow::{HasContext, NativeBuffer};
 use winit::keyboard::KeyCode;
@@ -226,13 +226,14 @@ impl SystemTrait for ShaderSystem {
 }
 
 fn main() {
-    let specs = WindowSpecs {
-        title: "windowwww",
-        width: 800,
-        height: 600,
-    };
+    let window_builder = WindowBuilder::new()
+        .with_size(1920, 1080)
+        .with_title("Okienko");
 
-    let mut app = App::new(specs);
+    let mut app = AppBuilder::new()
+        .with_window(window_builder)
+        .build()
+        .expect("Failed to build app");
 
     app.ecs.create_entity();
     app.ecs.create_entity();
