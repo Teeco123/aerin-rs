@@ -5,6 +5,7 @@ use aerin_rs::{
     ecs::{ECS, components::Component, entity_manager::Entity, system::SystemTrait},
     math::{mat4::Mat4, vec3::Vec3},
     renderer::{
+        builder::RendererBuilder,
         mesh::{Mesh, Vertex},
         shader::Shader,
     },
@@ -128,7 +129,7 @@ impl SystemTrait for CameraSystem {
         }
     }
 
-    fn fixed_update(&mut self, entities: &mut [Entity]) {}
+    fn fixed_update(&mut self, _entities: &mut [Entity]) {}
 }
 
 #[derive(Default)]
@@ -230,8 +231,11 @@ fn main() {
         .with_size(1920, 1080)
         .with_title("Okienko");
 
+    let renderer_builder = RendererBuilder::new();
+
     let mut app = AppBuilder::new()
         .with_window(window_builder)
+        .with_renderer(renderer_builder)
         .build()
         .expect("Failed to build app");
 

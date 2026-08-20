@@ -9,14 +9,15 @@ use winit::{
 use crate::{
     ecs::ECS,
     input::InputManager,
-    renderer::Renderer,
+    renderer::{Renderer, builder::RendererBuilder},
     window::{Window, builder::WindowBuilder},
 };
 
 pub struct App {
     window_builder: Option<WindowBuilder>,
+    renderer_builder: Option<RendererBuilder>,
     pub window: Option<Window>,
-    pub renderer: Renderer,
+    pub renderer: Option<Renderer>,
     pub input: InputManager,
     pub ecs: ECS,
 }
@@ -43,14 +44,27 @@ impl ApplicationHandler for App {
 
             self.window = Some(window.unwrap())
         }
+        let window = self.window.as_ref().unwrap();
+        let window_handle = window.get_window_handle();
+        let display_handle = window.get_display_handle();
+        let inner_size = window.get_inner_size();
 
-        let window_handle = self.window.as_ref().unwrap().get_window_handle();
-        let display_handle = self.window.as_ref().unwrap().get_display_handle();
-        self.renderer.init(window_handle, display_handle);
+        if self.renderer.is_none() {
+            let builder = self
+                .renderer_builder
+                .take()
+                .unwrap()
+                .with_size(inner_size.width, inner_size.height)
+                .with_display_handle(display_handle.as_raw())
+                .with_window_handle(window_handle.as_raw());
+
+            let renderer = builder.build();
+            self.renderer = Some(renderer.unwrap())
+        }
 
         let mut res = AppResources {
             window: &mut self.window.as_mut().unwrap(),
-            renderer: &mut self.renderer,
+            renderer: &mut self.renderer.as_mut().unwrap(),
             input: &mut self.input,
         };
 
@@ -60,7 +74,7 @@ impl ApplicationHandler for App {
     fn about_to_wait(&mut self, _event_loop: &winit::event_loop::ActiveEventLoop) {
         let mut res = AppResources {
             window: &mut self.window.as_mut().unwrap(),
-            renderer: &mut self.renderer,
+            renderer: &mut self.renderer.as_mut().unwrap(),
             input: &mut self.input,
         };
 

@@ -1,6 +1,7 @@
 pub mod builder;
 
 use winit::{
+    dpi::PhysicalSize,
     raw_window_handle::{DisplayHandle, HasDisplayHandle, HasWindowHandle, WindowHandle},
     window::Window as WinitWindow,
 };
@@ -20,5 +21,9 @@ impl Window {
 
     pub fn get_display_handle(&self) -> DisplayHandle<'_> {
         self.winit_window.display_handle().unwrap()
+    }
+
+    pub fn get_inner_size(&self) -> PhysicalSize<u32> {
+        self.winit_window.inner_size()
     }
 }
