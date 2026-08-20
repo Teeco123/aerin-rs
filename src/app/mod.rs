@@ -94,6 +94,12 @@ impl ApplicationHandler for App {
         match event {
             WindowEvent::RedrawRequested => {}
             WindowEvent::KeyboardInput { event, .. } => self.input.process_keyboard(event),
+            WindowEvent::Resized(size) => {
+                self.renderer
+                    .as_ref()
+                    .unwrap()
+                    .resize(size.width, size.height);
+            }
             _ => {}
         }
     }

@@ -110,7 +110,14 @@ impl SystemTrait for CameraSystem {
             let view =
                 Mat4::translate(Vec3::new(-pos.position.x, -pos.position.y, -pos.position.z))
                     .to_array();
-            let projection = Mat4::projection(60.0, 800.0, 800.0, 0.5, 20.0).to_array();
+            let projection = Mat4::projection(
+                60.0,
+                res.window.get_inner_size().width as f32,
+                res.window.get_inner_size().height as f32,
+                0.5,
+                20.0,
+            )
+            .to_array();
 
             let cam_comp = ecs.get_component::<CameraComponent>(*entity);
 

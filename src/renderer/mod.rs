@@ -2,17 +2,12 @@ pub mod builder;
 pub mod mesh;
 pub mod shader;
 
-use std::num::NonZeroU32;
-
 use glow::{Context, HasContext};
 use glutin::{
-    config::ConfigTemplateBuilder,
-    context::{ContextApi, ContextAttributesBuilder, PossiblyCurrentContext, Version},
-    display::{Display, DisplayApiPreference},
-    prelude::{GlDisplay, NotCurrentGlContext},
-    surface::{GlSurface, Surface, SurfaceAttributesBuilder, WindowSurface},
+    context::PossiblyCurrentContext,
+    surface::{GlSurface, Surface, WindowSurface},
 };
-use winit::raw_window_handle::{DisplayHandle, WindowHandle};
+use std::num::NonZeroU32;
 
 pub struct Renderer {
     surface: Option<Surface<WindowSurface>>,
@@ -31,6 +26,14 @@ impl Renderer {
         unsafe {
             gl.clear(glow::COLOR_BUFFER_BIT);
         }
+    }
+
+    pub fn resize(&self, width: u32, height: u32) {
+        self.surface.as_ref().unwrap().resize(
+            self.context.as_ref().unwrap(),
+            NonZeroU32::new(width).unwrap(),
+            NonZeroU32::new(height).unwrap(),
+        );
     }
 
     pub fn swap_buffers(&self) {
