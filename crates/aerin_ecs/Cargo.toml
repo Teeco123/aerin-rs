@@ -1,0 +1,4 @@
+[package]
+name = "aerin_ecs"
+version.workspace = true
+edition.workspace = true
