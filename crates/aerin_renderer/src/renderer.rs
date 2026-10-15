@@ -8,13 +8,13 @@ use glutin::{
     surface::{GlSurface, Surface, SurfaceAttributesBuilder, WindowSurface},
 };
 use raw_window_handle::{HasDisplayHandle, HasWindowHandle};
-use std::ffi::CString;
 use std::num::NonZeroU32;
+use std::{ffi::CString, sync::Arc};
 
 pub struct Renderer {
     surface: Surface<WindowSurface>,
     context: PossiblyCurrentContext,
-    gl: Context,
+    gl: Arc<Context>,
 }
 
 impl Renderer {
@@ -50,11 +50,11 @@ impl Renderer {
 
         let context = not_current.make_current(&surface)?;
 
-        let gl = unsafe {
+        let gl = Arc::new(unsafe {
             glow::Context::from_loader_function(|s| {
                 gl_display.get_proc_address(&CString::new(s).unwrap()) as *const _
             })
-        };
+        });
 
         Ok(Self {
             surface,
@@ -63,8 +63,8 @@ impl Renderer {
         })
     }
 
-    pub fn gl(&self) -> &Context {
-        &self.gl
+    pub fn gl(&self) -> Arc<Context> {
+        self.gl.clone()
     }
 
     pub fn clear(&self, r: f32, g: f32, b: f32, a: f32) {

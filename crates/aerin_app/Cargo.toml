@@ -1,0 +1,11 @@
+[package]
+name = "aerin_app"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+aerin_math = { path = "../aerin_math" }
+aerin_input = { path = "../aerin_input" }
+aerin_window = { path = "../aerin_window" }
+aerin_ecs = { path = "../aerin_ecs" }
+aerin_renderer = { path = "../aerin_renderer" }
