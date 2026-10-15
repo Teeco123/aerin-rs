@@ -1,0 +1,8 @@
+[package]
+name = "aerin_window"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+winit.workspace = true
+raw-window-handle.workspace = true
