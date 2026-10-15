@@ -4,24 +4,17 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-winit = { version = "0.30" }
-glutin = { version = "0.32" }
-glow = { version = "0.17" }
-
-[dev-dependencies]
 aerin_app = { path = "crates/aerin_app" }
 aerin_ecs = { path = "crates/aerin_ecs" }
 aerin_input = { path = "crates/aerin_input" }
 aerin_math = { path = "crates/aerin_math" }
 aerin_renderer = { path = "crates/aerin_renderer" }
 aerin_window = { path = "crates/aerin_window" }
+
+[dev-dependencies]
 glam = { version = "0.33" }
 approx = { version = "0.5" }
 criterion = { version = "0.8", features = ["html_reports"] }
-
-[[bench]]
-name = "vec2"
-harness = false
 
 [workspace]
 resolver = "2"
