@@ -1,21 +1,22 @@
 use std::fs;
+use std::sync::Arc;
 
-use aerin_rs::{
-    app::{AppResources, builder::AppBuilder},
-    ecs::{ECS, components::Component, entity_manager::Entity, system::SystemTrait},
-    math::{mat4::Mat4, vec3::Vec3},
-    renderer::{
-        builder::RendererBuilder,
-        mesh::{Mesh, Vertex},
-        shader::Shader,
-    },
-    window::builder::WindowBuilder,
+use aerin_app::App;
+use aerin_ecs::{Component, ECS, Entity, SystemTrait};
+use aerin_input::{Input, KeyCode};
+use aerin_math::{Mat4, Vec3};
+use aerin_renderer::{
+    Mesh, Shader, Vertex,
+    glow::{self, HasContext, NativeBuffer},
 };
-use glow::{HasContext, NativeBuffer};
-use winit::keyboard::KeyCode;
+use aerin_window::{Window, WindowConfig};
+
+// -----------------------------------------------------------------------------
+// Components
+// -----------------------------------------------------------------------------
 
 pub struct CameraComponent {
-    ubo: Option<NativeBuffer>,
+    pub ubo: Option<NativeBuffer>,
 }
 
 impl Component for CameraComponent {
@@ -28,7 +29,7 @@ impl Component for CameraComponent {
 }
 
 pub struct ShaderComponent {
-    shader: Option<Shader>,
+    pub shader: Option<Shader>,
 }
 
 impl Component for ShaderComponent {
@@ -41,7 +42,7 @@ impl Component for ShaderComponent {
 }
 
 pub struct MeshComponent {
-    mesh: Option<Mesh>,
+    pub mesh: Option<Mesh>,
 }
 
 impl Component for MeshComponent {
@@ -54,7 +55,7 @@ impl Component for MeshComponent {
 }
 
 pub struct PositionComponent {
-    position: Vec3,
+    pub position: Vec3,
 }
 
 impl Component for PositionComponent {
@@ -68,56 +69,61 @@ impl Component for PositionComponent {
     }
 }
 
+// -----------------------------------------------------------------------------
+// Systems (Notice: Zero AppResources, pure (entities, ecs)!)
+// -----------------------------------------------------------------------------
+
 #[derive(Default)]
 pub struct CameraSystem;
 
 impl SystemTrait for CameraSystem {
-    fn type_of() -> &'static str
-    where
-        Self: Sized,
-    {
+    fn type_of() -> &'static str {
         "CameraSystem"
     }
 
-    fn start(&mut self, entities: &mut [Entity], ecs: &mut ECS, res: &mut AppResources) {
-        let gl = res.renderer.get_gl();
+    fn start(&mut self, entities: &mut [Entity], ecs: &mut ECS) {
+        // Query the OpenGL context from ECS resources
+        let gl = ecs.get_resource::<Arc<glow::Context>>().unwrap().clone();
+
         for entity in entities {
             let cam_cmp = ecs.get_component::<CameraComponent>(*entity);
-            cam_cmp.ubo = Some(Shader::create_ubo(gl, 0, 128))
+            cam_cmp.ubo = Some(Shader::create_ubo(&gl, 0, 128));
         }
     }
 
-    fn update(&mut self, entities: &mut [Entity], ecs: &mut ECS, res: &mut AppResources) {
-        let gl = res.renderer.get_gl();
+    fn update(&mut self, entities: &mut [Entity], ecs: &mut ECS) {
+        // 1. Read resources upfront (releases borrow of ecs immediately!)
+        let gl = ecs.get_resource::<Arc<glow::Context>>().unwrap().clone();
+        let window = ecs.get_resource::<Window>().unwrap().clone();
+        let (width, height) = window.inner_size();
+
+        let input = ecs.get_resource::<Input>().unwrap();
+        let mut move_x = 0.0;
+        let mut move_z = 0.0;
+        if input.is_key_held(KeyCode::KeyA) {
+            move_x -= 0.1;
+        }
+        if input.is_key_held(KeyCode::KeyD) {
+            move_x += 0.1;
+        }
+        if input.is_key_held(KeyCode::KeyW) {
+            move_z -= 0.1;
+        }
+        if input.is_key_held(KeyCode::KeyS) {
+            move_z += 0.1;
+        }
+
+        // 2. Mutate components & update UBO
         for entity in entities {
             let pos = ecs.get_component::<PositionComponent>(*entity);
-            if res.input.is_key_held(KeyCode::KeyA) {
-                pos.position.x -= 0.1;
-            }
-
-            if res.input.is_key_held(KeyCode::KeyD) {
-                pos.position.x += 0.1;
-            }
-
-            if res.input.is_key_held(KeyCode::KeyS) {
-                pos.position.z += 0.1;
-            }
-
-            if res.input.is_key_held(KeyCode::KeyW) {
-                pos.position.z -= 0.1;
-            }
+            pos.position.x += move_x;
+            pos.position.z += move_z;
 
             let view =
                 Mat4::translate(Vec3::new(-pos.position.x, -pos.position.y, -pos.position.z))
                     .to_array();
-            let projection = Mat4::projection(
-                60.0,
-                res.window.get_inner_size().width as f32,
-                res.window.get_inner_size().height as f32,
-                0.5,
-                20.0,
-            )
-            .to_array();
+            let projection =
+                Mat4::projection(60.0, width as f32, height as f32, 0.5, 20.0).to_array();
 
             let cam_comp = ecs.get_component::<CameraComponent>(*entity);
 
@@ -143,66 +149,39 @@ impl SystemTrait for CameraSystem {
 pub struct ShaderSystem;
 
 impl SystemTrait for ShaderSystem {
-    fn type_of() -> &'static str
-    where
-        Self: Sized,
-    {
+    fn type_of() -> &'static str {
         "ShaderSystem"
     }
 
-    fn start(&mut self, entities: &mut [Entity], ecs: &mut ECS, res: &mut AppResources) {
-        let gl = res.renderer.get_gl();
+    fn start(&mut self, entities: &mut [Entity], ecs: &mut ECS) {
+        let gl = ecs.get_resource::<Arc<glow::Context>>().unwrap().clone();
 
-        let vertex_source: String =
-            fs::read_to_string("shaders/vertex.glsl").expect("failed to load file");
-        let fragment_source: String =
-            fs::read_to_string("shaders/frag.glsl").expect("failed to load file");
+        let vertex_source =
+            fs::read_to_string("shaders/vertex.glsl").expect("Failed to load vertex shader");
+        let fragment_source =
+            fs::read_to_string("shaders/frag.glsl").expect("Failed to load frag shader");
 
-        let shader = Shader::new(gl, vertex_source, fragment_source);
+        let shader = Shader::new(&gl, &vertex_source, &fragment_source);
+
+        let vertices = vec![
+            Vertex {
+                position: Vec3::new(0.0, 1.0, 0.0),
+                color: Vec3::new(1.0, 0.0, 0.0),
+            },
+            Vertex {
+                position: Vec3::new(-1.0, -1.0, 0.0),
+                color: Vec3::new(0.0, 1.0, 0.0),
+            },
+            Vertex {
+                position: Vec3::new(1.0, -1.0, 0.0),
+                color: Vec3::new(0.0, 0.0, 1.0),
+            },
+        ];
+        let indices = vec![0, 1, 2];
+
+        let mesh = Mesh::new(&gl, &vertices, &indices);
 
         for entity in entities {
-            let vertices: Vec<Vertex> = vec![
-                Vertex {
-                    position: Vec3 {
-                        x: 0.0,
-                        y: 1.0,
-                        z: 0.0,
-                    },
-                    color: Vec3 {
-                        x: 1.0,
-                        y: 0.0,
-                        z: 0.0,
-                    },
-                },
-                Vertex {
-                    position: Vec3 {
-                        x: -1.0,
-                        y: -1.0,
-                        z: 0.0,
-                    },
-                    color: Vec3 {
-                        x: 0.0,
-                        y: 1.0,
-                        z: 0.0,
-                    },
-                },
-                Vertex {
-                    position: Vec3 {
-                        x: 1.0,
-                        y: -1.0,
-                        z: 0.0,
-                    },
-                    color: Vec3 {
-                        x: 0.0,
-                        y: 0.0,
-                        z: 1.0,
-                    },
-                },
-            ];
-            let indices: Vec<u32> = vec![0, 1, 2];
-
-            let mesh = Mesh::new(gl, &vertices, &indices);
-
             let shader_component = ecs.get_component::<ShaderComponent>(*entity);
             shader_component.shader = Some(shader.clone());
 
@@ -210,53 +189,50 @@ impl SystemTrait for ShaderSystem {
             mesh_component.mesh = Some(mesh.clone());
         }
     }
-    fn update(&mut self, entities: &mut [Entity], ecs: &mut ECS, res: &mut AppResources) {
-        let gl = res.renderer.get_gl();
+
+    fn update(&mut self, entities: &mut [Entity], ecs: &mut ECS) {
+        let gl = ecs.get_resource::<Arc<glow::Context>>().unwrap().clone();
+        let model = Mat4::rotate_z(90.0_f32.to_radians());
 
         for entity in entities {
             let component = ecs.get_component::<ShaderComponent>(*entity);
-            component.shader.as_ref().unwrap().bind(gl);
-
-            let model = Mat4::rotate_z(90.0_f32.to_radians());
-
-            let component = ecs.get_component::<ShaderComponent>(*entity);
+            component.shader.as_ref().unwrap().bind(&gl);
             component
                 .shader
                 .as_ref()
                 .unwrap()
-                .set_uniform_mat4(gl, "u_model", &model.to_array());
+                .set_uniform_mat4(&gl, "u_model", &model.to_array());
 
             let mesh = ecs.get_component::<MeshComponent>(*entity);
-            mesh.mesh.as_ref().unwrap().draw(gl);
+            mesh.mesh.as_ref().unwrap().draw(&gl);
         }
     }
+
     fn fixed_update(&mut self, _entities: &mut [Entity]) {}
 }
 
+// -----------------------------------------------------------------------------
+// Main Entry Point
+// -----------------------------------------------------------------------------
+
 fn main() {
-    let window_builder = WindowBuilder::new()
-        .with_size(1920, 1080)
-        .with_title("Okienko");
+    let mut app = App::new();
 
-    let renderer_builder = RendererBuilder::new();
-
-    let mut app = AppBuilder::new()
-        .with_window(window_builder)
-        .with_renderer(renderer_builder)
-        .build()
-        .expect("Failed to build app");
-
+    // 1. Entities
     app.ecs.create_entity();
     app.ecs.create_entity();
 
+    // 2. Components
     app.ecs.register_component::<ShaderComponent>();
     app.ecs.register_component::<MeshComponent>();
     app.ecs.register_component::<PositionComponent>();
     app.ecs.register_component::<CameraComponent>();
 
+    // 3. Systems
     app.ecs.register_system::<ShaderSystem>();
     app.ecs.register_system::<CameraSystem>();
 
+    // 4. Signatures
     app.ecs.update_signature::<ShaderSystem, ShaderComponent>();
     app.ecs.update_signature::<ShaderSystem, MeshComponent>();
     app.ecs
@@ -266,12 +242,22 @@ fn main() {
     app.ecs
         .update_signature::<CameraSystem, PositionComponent>();
 
+    // 5. Attach Components to Entity 0 (Triangle)
     app.ecs.insert_component::<ShaderComponent>(0);
     app.ecs.insert_component::<MeshComponent>(0);
     app.ecs.insert_component::<PositionComponent>(0);
 
+    // 6. Attach Components to Entity 1 (Camera)
     app.ecs.insert_component::<PositionComponent>(1);
     app.ecs.insert_component::<CameraComponent>(1);
 
-    app.run();
+    // 7. Run Windowed App
+    let config = WindowConfig {
+        title: "Aerin Engine (Modular)".to_string(),
+        width: 1920,
+        height: 1080,
+        ..Default::default()
+    };
+
+    app.run(config);
 }
