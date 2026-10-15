@@ -1,0 +1,4 @@
+[package]
+name = "aerin_input"
+version.workspace = true
+edition.workspace = true
