@@ -32,3 +32,5 @@ winit = { version = "0.30", default-features = false, features = ["rwh_06"] }
 raw-window-handle = "0.6"
 glow = "0.17"
 glutin = "0.32"
+wgpu = "30.0"
+bytemuck = "1.25"
