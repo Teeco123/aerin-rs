@@ -1,83 +1,66 @@
 use aerin_math::Vec3;
-use glow::{Context, HasContext};
-use std::mem::{offset_of, size_of, size_of_val};
+use bytemuck::{Pod, Zeroable};
+use wgpu::util::DeviceExt;
 
 #[repr(C)]
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Pod, Zeroable)]
 pub struct Vertex {
     pub position: Vec3,
     pub color: Vec3,
 }
 
+impl Vertex {
+    pub fn desc() -> wgpu::VertexBufferLayout<'static> {
+        wgpu::VertexBufferLayout {
+            array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress,
+            step_mode: wgpu::VertexStepMode::Vertex,
+            attributes: &[
+                wgpu::VertexAttribute {
+                    format: wgpu::VertexFormat::Float32x3,
+                    offset: std::mem::offset_of!(Vertex, position) as u64,
+                    shader_location: 0,
+                },
+                wgpu::VertexAttribute {
+                    format: wgpu::VertexFormat::Float32x3,
+                    offset: std::mem::offset_of!(Vertex, color) as u64,
+                    shader_location: 1,
+                },
+            ],
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct Mesh {
-    vao: glow::VertexArray,
-    #[allow(dead_code)]
-    vbo: glow::Buffer,
-    #[allow(dead_code)]
-    ebo: glow::Buffer,
-    index_count: i32,
+    vertex_buffer: wgpu::Buffer,
+    index_buffer: wgpu::Buffer,
+    index_count: u32,
 }
 
 impl Mesh {
-    pub fn new(gl: &Context, vertices: &[Vertex], indices: &[u32]) -> Self {
-        unsafe {
-            let vao = gl.create_vertex_array().expect("Failed to create VAO");
-            let vbo = gl.create_buffer().expect("Failed to create VBO");
-            let ebo = gl.create_buffer().expect("Failed to create EBO");
+    pub fn new(device: &wgpu::Device, vertices: &[Vertex], indices: &[u32]) -> Self {
+        let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Vertex Buffer"),
+            contents: bytemuck::cast_slice(vertices),
+            usage: wgpu::BufferUsages::VERTEX,
+        });
 
-            gl.bind_vertex_array(Some(vao));
+        let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Index buffer"),
+            contents: bytemuck::cast_slice(indices),
+            usage: wgpu::BufferUsages::INDEX,
+        });
 
-            // Vertex Buffer
-            gl.bind_buffer(glow::ARRAY_BUFFER, Some(vbo));
-            let vertices_bytes: &[u8] =
-                core::slice::from_raw_parts(vertices.as_ptr() as *const u8, size_of_val(vertices));
-            gl.buffer_data_u8_slice(glow::ARRAY_BUFFER, vertices_bytes, glow::STATIC_DRAW);
-
-            // Index Buffer
-            gl.bind_buffer(glow::ELEMENT_ARRAY_BUFFER, Some(ebo));
-            let indices_bytes: &[u8] =
-                core::slice::from_raw_parts(indices.as_ptr() as *const u8, size_of_val(indices));
-            gl.buffer_data_u8_slice(glow::ELEMENT_ARRAY_BUFFER, indices_bytes, glow::STATIC_DRAW);
-
-            // Attribute 0: Position
-            gl.vertex_attrib_pointer_f32(
-                0,
-                3,
-                glow::FLOAT,
-                false,
-                size_of::<Vertex>() as i32,
-                offset_of!(Vertex, position) as i32,
-            );
-            gl.enable_vertex_attrib_array(0);
-
-            // Attribute 1: Color
-            gl.vertex_attrib_pointer_f32(
-                1,
-                3,
-                glow::FLOAT,
-                false,
-                size_of::<Vertex>() as i32,
-                offset_of!(Vertex, color) as i32,
-            );
-            gl.enable_vertex_attrib_array(1);
-
-            gl.bind_vertex_array(None);
-
-            Self {
-                vao,
-                vbo,
-                ebo,
-                index_count: indices.len() as i32,
-            }
+        Self {
+            vertex_buffer,
+            index_buffer,
+            index_count: indices.len() as u32,
         }
     }
 
-    pub fn draw(&self, gl: &Context) {
-        unsafe {
-            gl.bind_vertex_array(Some(self.vao));
-            gl.draw_elements(glow::TRIANGLES, self.index_count, glow::UNSIGNED_INT, 0);
-            gl.bind_vertex_array(None);
-        }
+    pub fn draw(&self, render_pass: &mut wgpu::RenderPass) {
+        render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
+        render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint32);
+        render_pass.draw_indexed(0..self.index_count, 0, 0..1);
     }
 }

@@ -6,6 +6,8 @@ edition.workspace = true
 [dependencies]
 aerin_math = { path = "../aerin_math" }
 aerin_window = { path = "../aerin_window" }
+wgpu.workspace = true
+bytemuck.workspace = true
 glow.workspace = true
 glutin.workspace = true
 raw-window-handle.workspace = true
