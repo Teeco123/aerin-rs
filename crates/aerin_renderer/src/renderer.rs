@@ -1,89 +1,83 @@
 use aerin_window::Window;
-use glow::{Context, HasContext};
-use glutin::{
-    config::ConfigTemplateBuilder,
-    context::{ContextApi, ContextAttributesBuilder, PossiblyCurrentContext, Version},
-    display::{Display, DisplayApiPreference},
-    prelude::{GlDisplay, NotCurrentGlContext},
-    surface::{GlSurface, Surface, SurfaceAttributesBuilder, WindowSurface},
-};
-use raw_window_handle::{HasDisplayHandle, HasWindowHandle};
-use std::num::NonZeroU32;
-use std::{ffi::CString, sync::Arc};
+use std::sync::Arc;
 
 pub struct Renderer {
-    surface: Surface<WindowSurface>,
-    context: PossiblyCurrentContext,
-    gl: Arc<Context>,
+    surface: wgpu::Surface<'static>,
+    device: wgpu::Device,
+    queue: wgpu::Queue,
+    config: wgpu::SurfaceConfiguration,
 }
 
 impl Renderer {
-    pub fn new(window: &Window) -> Result<Self, Box<dyn std::error::Error>> {
-        let window_handle = window.window_handle()?.as_raw();
-        let display_handle = window.display_handle()?.as_raw();
+    pub async fn new(window: Arc<Window>) -> Result<Self, Box<dyn std::error::Error>> {
         let (width, height) = window.inner_size();
 
-        let preference = DisplayApiPreference::Cgl;
-        let gl_display = unsafe { Display::new(display_handle, preference)? };
-
-        let template = ConfigTemplateBuilder::new();
-        let gl_config = unsafe {
-            gl_display
-                .find_configs(template.build())?
-                .next()
-                .ok_or("Failed to find suitable GL config")?
-        };
-
-        let context_attributes = ContextAttributesBuilder::new()
-            .with_context_api(ContextApi::OpenGl(Some(Version::new(4, 1))))
-            .build(Some(window_handle));
-
-        let not_current = unsafe { gl_display.create_context(&gl_config, &context_attributes)? };
-
-        let attrs = SurfaceAttributesBuilder::<WindowSurface>::new().build(
-            window_handle,
-            NonZeroU32::new(width.max(1)).unwrap(),
-            NonZeroU32::new(height.max(1)).unwrap(),
-        );
-
-        let surface = unsafe { gl_display.create_window_surface(&gl_config, &attrs)? };
-
-        let context = not_current.make_current(&surface)?;
-
-        let gl = Arc::new(unsafe {
-            glow::Context::from_loader_function(|s| {
-                gl_display.get_proc_address(&CString::new(s).unwrap()) as *const _
-            })
+        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
+            backends: wgpu::Backends::PRIMARY,
+            flags: Default::default(),
+            memory_budget_thresholds: Default::default(),
+            backend_options: Default::default(),
+            display: None,
         });
+
+        let surface = instance
+            .create_surface(window.clone())
+            .expect("Failed to create surface");
+
+        let adapter = instance
+            .request_adapter(&wgpu::RequestAdapterOptions {
+                power_preference: wgpu::PowerPreference::default(),
+                compatible_surface: Some(&surface),
+                force_fallback_adapter: false,
+                apply_limit_buckets: true,
+            })
+            .await?;
+
+        let (device, queue) = adapter
+            .request_device(&wgpu::DeviceDescriptor {
+                label: None,
+                required_features: wgpu::Features::empty(),
+                experimental_features: wgpu::ExperimentalFeatures::disabled(),
+                required_limits: wgpu::Limits::default(),
+                memory_hints: Default::default(),
+                trace: wgpu::Trace::Off,
+            })
+            .await?;
+
+        let surface_caps = surface.get_capabilities(&adapter);
+
+        let surface_format = surface_caps
+            .formats
+            .iter()
+            .find(|f| f.is_srgb())
+            .copied()
+            .unwrap_or(surface_caps.formats[0]);
+
+        let config = wgpu::SurfaceConfiguration {
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
+            format: surface_format,
+            width: width,
+            height: height,
+            present_mode: surface_caps.present_modes[0],
+            alpha_mode: surface_caps.alpha_modes[0],
+            view_formats: vec![],
+            desired_maximum_frame_latency: 2,
+            color_space: wgpu::SurfaceColorSpace::Auto,
+        };
 
         Ok(Self {
             surface,
-            context,
-            gl,
+            device,
+            queue,
+            config,
         })
     }
 
-    pub fn gl(&self) -> Arc<Context> {
-        self.gl.clone()
-    }
-
-    pub fn clear(&self, r: f32, g: f32, b: f32, a: f32) {
-        unsafe {
-            self.gl.clear_color(r, g, b, a);
-            self.gl.clear(glow::COLOR_BUFFER_BIT);
+    pub fn resize(&mut self, width: u32, height: u32) {
+        if width > 0 && height > 0 {
+            self.config.width = width;
+            self.config.height = height;
+            self.surface.configure(&self.device, &self.config);
         }
-    }
-
-    pub fn resize(&self, width: u32, height: u32) {
-        if let (Some(w), Some(h)) = (NonZeroU32::new(width), NonZeroU32::new(height)) {
-            self.surface.resize(&self.context, w, h);
-            unsafe {
-                self.gl.viewport(0, 0, width as i32, height as i32);
-            }
-        }
-    }
-
-    pub fn swap_buffers(&self) {
-        self.surface.swap_buffers(&self.context).unwrap();
     }
 }
