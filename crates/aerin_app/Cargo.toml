@@ -9,3 +9,4 @@ aerin_input = { path = "../aerin_input" }
 aerin_window = { path = "../aerin_window" }
 aerin_ecs = { path = "../aerin_ecs" }
 aerin_renderer = { path = "../aerin_renderer" }
+pollster.workspace = true

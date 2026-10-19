@@ -9,7 +9,7 @@ pub struct Renderer {
 }
 
 impl Renderer {
-    pub async fn new(window: Arc<Window>) -> Result<Self, Box<dyn std::error::Error>> {
+    pub async fn new(window: &Window) -> Result<Self, Box<dyn std::error::Error>> {
         let (width, height) = window.inner_size();
 
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
@@ -21,7 +21,7 @@ impl Renderer {
         });
 
         let surface = instance
-            .create_surface(window.clone())
+            .create_surface(Arc::new(window.clone()))
             .expect("Failed to create surface");
 
         let adapter = instance

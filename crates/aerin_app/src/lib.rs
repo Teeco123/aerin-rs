@@ -28,7 +28,7 @@ impl App {
 
 impl WindowApp for App {
     fn on_start(&mut self, window: Window) {
-        let renderer = Renderer::new(&window).expect("Failed to create renderer");
+        let renderer = pollster::block_on(Renderer::new(window.clone()));
         self.ecs.insert_resource(window.clone());
         self.ecs.insert_resource(renderer.gl().clone());
         self.renderer = Some(renderer);
