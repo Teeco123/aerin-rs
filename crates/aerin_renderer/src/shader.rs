@@ -1,3 +1,6 @@
+use crate::Vertex;
+
+#[derive(Clone)]
 pub struct Shader {
     pipeline: wgpu::RenderPipeline,
 }
@@ -26,7 +29,7 @@ impl Shader {
             vertex: wgpu::VertexState {
                 module: &shader_module,
                 entry_point: Some("vs_main"),
-                buffers: &[],
+                buffers: &[Some(Vertex::desc())],
                 compilation_options: wgpu::PipelineCompilationOptions::default(),
             },
             fragment: Some(wgpu::FragmentState {
