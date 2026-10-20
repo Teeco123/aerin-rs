@@ -4,19 +4,19 @@ use aerin_renderer::Renderer;
 use aerin_window::{Window, WindowApp, WindowConfig, WindowEvent, run_window_app};
 
 pub struct App {
-    pub ecs: Option<ECS>,
+    pub ecs: ECS,
+    pub input: Input,
     pub renderer: Option<Renderer>,
     pub window: Option<Window>,
-    pub input: Option<Input>,
 }
 
 impl App {
     pub fn new() -> Self {
         Self {
-            ecs: None,
+            ecs: ECS::new(),
+            input: Input::new(),
             renderer: None,
             window: None,
-            input: None,
         }
     }
 
@@ -27,12 +27,8 @@ impl App {
 
 impl WindowApp for App {
     fn on_start(&mut self, window: Window) {
-        let ecs = ECS::new();
-        let input = Input::new();
         let renderer = pollster::block_on(Renderer::new(&window));
 
-        self.ecs = Some(ecs);
-        self.input = Some(input);
         self.renderer = Some(renderer);
         self.window = Some(window);
 
@@ -50,29 +46,21 @@ impl WindowApp for App {
                 }
             }
             WindowEvent::KeyPressed(key) => {
-                if let Some(input) = self.input.as_mut() {
-                    input.press_key(key);
-                }
+                self.input.press_key(key);
             }
             WindowEvent::KeyReleased(key) => {
-                if let Some(input) = self.input.as_mut() {
-                    input.release_key(key);
-                }
+                self.input.release_key(key);
             }
             WindowEvent::MouseMoved { delta_x, delta_y } => {
-                if let Some(input) = self.input.as_mut() {
-                    input.set_mouse_delta(delta_x, delta_y);
-                }
+                self.input.set_mouse_delta(delta_x, delta_y);
             }
             _ => {}
         }
     }
 
     fn on_update(&mut self) {
-        self.ecs.as_mut().unwrap().update();
+        self.ecs.update();
 
-        if let Some(input) = self.input.as_mut() {
-            input.clear_frame();
-        }
+        input.clear_frame();
     }
 }
