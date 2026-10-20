@@ -23,6 +23,9 @@ impl ECS {
         }
     }
 
+    /// ===========
+    ///  Resources
+    /// ===========
     pub fn insert_resource<T: 'static>(&mut self, resource: T) {
         self.resources.insert(resource);
     }
@@ -34,6 +37,9 @@ impl ECS {
         self.resources.get_mut::<T>().unwrap()
     }
 
+    /// ==========
+    ///  Entities
+    /// ==========
     pub fn create_entity(&mut self) -> Entity {
         self.entity_manager.create_entity()
     }
@@ -50,6 +56,9 @@ impl ECS {
         self.entity_manager.is_alive(id)
     }
 
+    /// ============
+    ///  Components
+    /// ============
     pub fn register_component<T: Component + 'static>(&mut self) {
         self.component_manager.register_component::<T>();
     }
@@ -72,14 +81,21 @@ impl ECS {
             .update_system_entities(id, signature);
     }
 
-    pub fn get_component<T: Component + 'static>(&mut self, id: Entity) -> &mut T {
+    pub fn get_component<T: Component + 'static>(&self, id: Entity) -> Ref<'_, T> {
         self.component_manager.get_component(id).unwrap()
+    }
+
+    pub fn get_component_mut<T: Component + 'static>(&self, id: Entity) -> RefMut<'_, T> {
+        self.component_manager.get_component_mut(id).unwrap()
     }
 
     pub fn has_component<T: Component + 'static>(&self, id: Entity) -> bool {
         self.component_manager.has_component::<T>(id)
     }
 
+    /// =========
+    ///  Systems
+    /// =========
     pub fn register_system<T: SystemTrait + Default + 'static>(&mut self) {
         self.system_manager.as_mut().unwrap().register_system::<T>();
     }
@@ -92,6 +108,9 @@ impl ECS {
             .update_signature::<T>(*component_type);
     }
 
+    /// =====
+    ///  ECS
+    /// =====
     pub fn start(&mut self) {
         let mut system_manager = self.system_manager.take().unwrap();
         system_manager.systems_start(self);
