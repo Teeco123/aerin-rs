@@ -27,10 +27,12 @@ impl App {
 
 impl WindowApp for App {
     fn on_start(&mut self, window: Window) {
+        let ecs = ECS::new();
+        let input = Input::new();
         let renderer = pollster::block_on(Renderer::new(&window));
 
-        self.ecs = Some(ECS::new());
-        self.input = Some(Input::new());
+        self.ecs = Some(ecs);
+        self.input = Some(input);
         self.renderer = Some(renderer);
         self.window = Some(window);
 
