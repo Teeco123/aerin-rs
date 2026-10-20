@@ -165,7 +165,7 @@ impl Vec3 {
 
     #[inline]
     pub const fn eq(&self, rhs: &Self) -> bool {
-        self.x == rhs.x && self.y == rhs.y && self.y == rhs.y
+        self.x == rhs.x && self.y == rhs.y && self.z == rhs.z
     }
 
     #[inline]
