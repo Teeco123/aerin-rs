@@ -1,6 +1,7 @@
 pub mod component;
 pub mod ecs;
 pub mod entity;
+pub mod resource;
 pub mod sparse_set;
 pub mod system;
 

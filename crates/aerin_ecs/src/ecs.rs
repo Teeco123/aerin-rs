@@ -1,6 +1,8 @@
+use std::cell::{Ref, RefMut};
+
 use crate::component::Component;
 use crate::entity::{Entity, EntityManager};
-use crate::resources::Resources;
+use crate::resource::Resources;
 use crate::sparse_set::ComponentManager;
 use crate::system::{SystemManager, SystemTrait};
 
@@ -19,6 +21,17 @@ impl ECS {
             system_manager: Some(SystemManager::new()),
             resources: Resources::new(),
         }
+    }
+
+    pub fn insert_resource<T: 'static>(&mut self, resource: T) {
+        self.resources.insert(resource);
+    }
+
+    pub fn get_resource<T: 'static>(&self) -> Ref<'_, T> {
+        self.resources.get::<T>().unwrap()
+    }
+    pub fn get_resource_mut<T: 'static>(&self) -> RefMut<'_, T> {
+        self.resources.get_mut::<T>().unwrap()
     }
 
     pub fn create_entity(&mut self) -> Entity {
