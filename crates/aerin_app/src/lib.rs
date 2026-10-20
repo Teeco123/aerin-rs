@@ -24,6 +24,8 @@ impl WindowApp for App {
         self.ecs.insert_resource(Input::new());
         self.ecs.insert_resource(renderer);
         self.ecs.insert_resource(window);
+
+        self.ecs.start();
     }
 
     fn on_event(&mut self, event: WindowEvent) {
@@ -52,6 +54,7 @@ impl WindowApp for App {
     }
 
     fn on_update(&mut self) {
+        self.ecs.update();
         self.ecs.get_resource_mut::<Input>().clear_frame();
     }
 }
