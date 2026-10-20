@@ -9,7 +9,7 @@ pub struct Renderer {
 }
 
 impl Renderer {
-    pub async fn new(window: &Window) -> Result<Self, Box<dyn std::error::Error>> {
+    pub async fn new(window: &Window) -> Self {
         let (width, height) = window.inner_size();
 
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
@@ -31,7 +31,8 @@ impl Renderer {
                 force_fallback_adapter: false,
                 apply_limit_buckets: true,
             })
-            .await?;
+            .await
+            .expect("Failed to create an adapter");
 
         let (device, queue) = adapter
             .request_device(&wgpu::DeviceDescriptor {
@@ -42,7 +43,8 @@ impl Renderer {
                 memory_hints: Default::default(),
                 trace: wgpu::Trace::Off,
             })
-            .await?;
+            .await
+            .expect("Failed to create device & queue");
 
         let surface_caps = surface.get_capabilities(&adapter);
 
@@ -65,12 +67,12 @@ impl Renderer {
             color_space: wgpu::SurfaceColorSpace::Auto,
         };
 
-        Ok(Self {
+        Self {
             surface,
             device,
             queue,
             config,
-        })
+        }
     }
 
     pub fn resize(&mut self, width: u32, height: u32) {

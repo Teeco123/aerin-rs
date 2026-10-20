@@ -4,20 +4,19 @@ use aerin_renderer::Renderer;
 use aerin_window::{Window, WindowApp, WindowConfig, WindowEvent, run_window_app};
 
 pub struct App {
-    pub ecs: ECS,
+    pub ecs: Option<ECS>,
     pub renderer: Option<Renderer>,
     pub window: Option<Window>,
+    pub input: Option<Input>,
 }
 
 impl App {
     pub fn new() -> Self {
-        let mut ecs = ECS::new();
-        ecs.insert_resource(Input::new());
-
         Self {
-            ecs,
+            ecs: None,
             renderer: None,
             window: None,
+            input: None,
         }
     }
 
@@ -28,12 +27,14 @@ impl App {
 
 impl WindowApp for App {
     fn on_start(&mut self, window: Window) {
-        let renderer = pollster::block_on(Renderer::new(window.clone()));
-        self.ecs.insert_resource(window.clone());
-        self.ecs.insert_resource(renderer.gl().clone());
+        let renderer = pollster::block_on(Renderer::new(&window));
+
+        self.ecs = Some(ECS::new());
+        self.input = Some(Input::new());
         self.renderer = Some(renderer);
         self.window = Some(window);
-        self.ecs.start();
+
+        self.ecs.as_mut().unwrap().start();
     }
 
     fn on_event(&mut self, event: WindowEvent) {
@@ -47,17 +48,17 @@ impl WindowApp for App {
                 }
             }
             WindowEvent::KeyPressed(key) => {
-                if let Some(input) = self.ecs.get_resource_mut::<Input>() {
+                if let Some(input) = self.input.as_mut() {
                     input.press_key(key);
                 }
             }
             WindowEvent::KeyReleased(key) => {
-                if let Some(input) = self.ecs.get_resource_mut::<Input>() {
+                if let Some(input) = self.input.as_mut() {
                     input.release_key(key);
                 }
             }
             WindowEvent::MouseMoved { delta_x, delta_y } => {
-                if let Some(input) = self.ecs.get_resource_mut::<Input>() {
+                if let Some(input) = self.input.as_mut() {
                     input.set_mouse_delta(delta_x, delta_y);
                 }
             }
@@ -66,15 +67,9 @@ impl WindowApp for App {
     }
 
     fn on_update(&mut self) {
-        let renderer = self.renderer.as_ref().unwrap();
+        self.ecs.as_mut().unwrap().update();
 
-        renderer.clear(0.1, 0.1, 0.15, 1.0);
-
-        self.ecs.update();
-
-        renderer.swap_buffers();
-
-        if let Some(input) = self.ecs.get_resource_mut::<Input>() {
+        if let Some(input) = self.input.as_mut() {
             input.clear_frame();
         }
     }

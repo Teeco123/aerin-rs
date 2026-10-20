@@ -21,18 +21,6 @@ impl ECS {
         }
     }
 
-    pub fn insert_resource<T: 'static>(&mut self, resource: T) {
-        self.resources.insert(resource);
-    }
-
-    pub fn get_resource<T: 'static>(&self) -> Option<&T> {
-        self.resources.get::<T>()
-    }
-
-    pub fn get_resource_mut<T: 'static>(&mut self) -> Option<&mut T> {
-        self.resources.get_mut::<T>()
-    }
-
     pub fn create_entity(&mut self) -> Entity {
         self.entity_manager.create_entity()
     }
