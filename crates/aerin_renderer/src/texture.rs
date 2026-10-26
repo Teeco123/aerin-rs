@@ -59,4 +59,30 @@ impl Texture {
             size: (width, height),
         }
     }
+
+    pub fn write_texture(&self, queue: &wgpu::Queue, rgba_data: &[u8]) {
+        queue.write_texture(
+            wgpu::TexelCopyTextureInfo {
+                texture: &self.texture,
+                mip_level: 0,
+                origin: wgpu::Origin3d::ZERO,
+                aspect: wgpu::TextureAspect::All,
+            },
+            rgba_data,
+            wgpu::TexelCopyBufferLayout {
+                offset: 0,
+                bytes_per_row: Some(4 * self.size.0),
+                rows_per_image: Some(self.size.1),
+            },
+            wgpu::Extent3d {
+                width: self.size.0,
+                height: self.size.1,
+                depth_or_array_layers: 1,
+            },
+        );
+    }
+
+    pub fn bind(&self, render_pass: &mut wgpu::RenderPass, index: u32) {
+        render_pass.set_bind_group(index, &self.bind_group, &[]);
+    }
 }
