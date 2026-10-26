@@ -10,6 +10,7 @@ impl Shader {
         device: &wgpu::Device,
         wgsl_source: &str,
         texture_format: wgpu::TextureFormat,
+        bind_group_layouts: &[Option<&wgpu::BindGroupLayout>],
     ) -> Self {
         let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("Shader Module"),
@@ -19,7 +20,7 @@ impl Shader {
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("Render Pipeline Layout"),
-                bind_group_layouts: &[],
+                bind_group_layouts,
                 immediate_size: 0,
             });
 

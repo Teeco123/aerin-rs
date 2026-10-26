@@ -1,3 +1,4 @@
+#[derive(Clone)]
 pub struct Texture {
     texture: wgpu::Texture,
     view: wgpu::TextureView,
@@ -5,7 +6,6 @@ pub struct Texture {
     bind_group: wgpu::BindGroup,
     size: (u32, u32),
 }
-
 impl Texture {
     pub fn new(
         device: &wgpu::Device,
@@ -58,6 +58,30 @@ impl Texture {
             bind_group,
             size: (width, height),
         }
+    }
+
+    pub fn default_layout(device: &wgpu::Device) -> wgpu::BindGroupLayout {
+        device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+            label: Some("Texture Bind Group Layout"),
+            entries: &[
+                wgpu::BindGroupLayoutEntry {
+                    binding: 0,
+                    visibility: wgpu::ShaderStages::FRAGMENT,
+                    ty: wgpu::BindingType::Texture {
+                        sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                        view_dimension: wgpu::TextureViewDimension::D2,
+                        multisampled: false,
+                    },
+                    count: None,
+                },
+                wgpu::BindGroupLayoutEntry {
+                    binding: 1,
+                    visibility: wgpu::ShaderStages::FRAGMENT,
+                    ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
+                    count: None,
+                },
+            ],
+        })
     }
 
     pub fn write_texture(&self, queue: &wgpu::Queue, rgba_data: &[u8]) {
