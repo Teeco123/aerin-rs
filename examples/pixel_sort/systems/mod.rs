@@ -1,6 +1,8 @@
 use aerin_ecs::{ECS, Entity, SystemTrait};
 use aerin_math::{Vec2, Vec3};
 use aerin_renderer::{Mesh, Renderer, Shader, Texture, Vertex};
+use aerin_ui::{EguiIntegration, egui};
+use aerin_window::Window;
 
 use crate::components::QuadComponent;
 
@@ -139,6 +141,13 @@ impl SystemTrait for PixelSortSystem {
     }
 
     fn update(&mut self, entities: &mut [Entity], ecs: &mut ECS) {
+        let window = ecs.get_resource::<Window>();
+        let mut ui = ecs.get_resource_mut::<EguiIntegration>();
+
+        ui.run(&window, |ctx| {
+            egui::Window::new("Post processing").show(ctx, |ui| ui.heading("test"));
+        });
+
         let mut renderer = ecs.get_resource_mut::<Renderer>();
         renderer.render(
             |scene_pass| {
@@ -153,7 +162,9 @@ impl SystemTrait for PixelSortSystem {
                     }
                 }
             },
-            |ui_pass| {},
+            |ui_pass| {
+                ui.render(ui_pass);
+            },
         );
     }
 

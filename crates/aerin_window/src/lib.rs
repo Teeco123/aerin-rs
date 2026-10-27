@@ -7,3 +7,4 @@ pub use config::WindowConfig;
 pub use events::WindowEvent;
 pub use runner::{WindowApp, run_window_app};
 pub use window::Window;
+pub use winit;

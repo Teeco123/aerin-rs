@@ -10,6 +10,7 @@ aerin_input = { path = "crates/aerin_input" }
 aerin_math = { path = "crates/aerin_math" }
 aerin_renderer = { path = "crates/aerin_renderer" }
 aerin_window = { path = "crates/aerin_window" }
+aerin_ui = { path = "crates/aerin_ui" }
 bytemuck = { workspace = true }
 image = { workspace = true }
 
@@ -38,3 +39,6 @@ wgpu = "30.0"
 bytemuck = "1.25"
 pollster = "1.0"
 image = { version = "0.25", default-features = false, features = ["png", "jpeg"] }
+egui = "0.37.0"
+egui-wgpu = "0.37.0"
+egui-winit = "0.37.0"

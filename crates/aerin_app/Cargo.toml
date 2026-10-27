@@ -7,6 +7,7 @@ edition.workspace = true
 aerin_math = { path = "../aerin_math" }
 aerin_input = { path = "../aerin_input" }
 aerin_window = { path = "../aerin_window" }
+aerin_ui = { path = "../aerin_ui" }
 aerin_ecs = { path = "../aerin_ecs" }
 aerin_renderer = { path = "../aerin_renderer" }
 pollster.workspace = true

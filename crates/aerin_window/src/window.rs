@@ -16,6 +16,10 @@ impl Window {
         }
     }
 
+    pub fn winit_window(&self) -> &WinitWindow {
+        &self.inner
+    }
+
     pub fn inner_size(&self) -> (u32, u32) {
         let size = self.inner.inner_size();
         (size.width, size.height)

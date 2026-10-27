@@ -1,6 +1,7 @@
 use aerin_ecs::ECS;
 use aerin_input::Input;
 use aerin_renderer::Renderer;
+use aerin_ui::EguiIntegration;
 use aerin_window::{Window, WindowApp, WindowConfig, WindowEvent, run_window_app};
 
 pub struct App {
@@ -20,12 +21,24 @@ impl App {
 impl WindowApp for App {
     fn on_start(&mut self, window: Window) {
         let renderer = pollster::block_on(Renderer::new(&window));
+        let ui = EguiIntegration::new(&window, &renderer);
 
         self.ecs.insert_resource(Input::new());
         self.ecs.insert_resource(renderer);
+        self.ecs.insert_resource(ui);
         self.ecs.insert_resource(window);
 
         self.ecs.start();
+    }
+
+    fn on_raw_event(
+        &mut self,
+        window: &Window,
+        event: &aerin_window::winit::event::WindowEvent,
+    ) -> bool {
+        self.ecs
+            .get_resource_mut::<EguiIntegration>()
+            .on_event(window, event)
     }
 
     fn on_event(&mut self, event: WindowEvent) {

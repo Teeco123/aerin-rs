@@ -12,6 +12,10 @@ pub trait WindowApp {
     fn on_start(&mut self, window: Window);
     fn on_event(&mut self, event: WindowEvent);
     fn on_update(&mut self);
+
+    fn on_raw_event(&mut self, _window: &Window, _event: &WinitWindowEvent) -> bool {
+        false
+    }
 }
 
 pub struct WinitRunner<A: WindowApp> {
@@ -69,6 +73,12 @@ impl<A: WindowApp> ApplicationHandler for WinitRunner<A> {
         _window_id: WindowId,
         event: WinitWindowEvent,
     ) {
+        if let Some(window) = &self.window {
+            if self.app.on_raw_event(window, &event) {
+                return;
+            }
+        }
+
         match event {
             WinitWindowEvent::CloseRequested => {
                 self.app.on_event(WindowEvent::CloseRequested);
