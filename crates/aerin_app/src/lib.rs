@@ -5,20 +5,11 @@ use aerin_window::{Window, WindowApp, WindowConfig, WindowEvent, run_window_app}
 
 pub struct App {
     pub ecs: ECS,
-    pub renderer: Option<Renderer>,
-    pub window: Option<Window>,
 }
 
 impl App {
     pub fn new() -> Self {
-        let mut ecs = ECS::new();
-        ecs.insert_resource(Input::new());
-
-        Self {
-            ecs,
-            renderer: None,
-            window: None,
-        }
+        Self { ecs: ECS::new() }
     }
 
     pub fn run(self, config: WindowConfig) {
@@ -28,11 +19,12 @@ impl App {
 
 impl WindowApp for App {
     fn on_start(&mut self, window: Window) {
-        let renderer = Renderer::new(&window).expect("Failed to create renderer");
-        self.ecs.insert_resource(window.clone());
-        self.ecs.insert_resource(renderer.gl().clone());
-        self.renderer = Some(renderer);
-        self.window = Some(window);
+        let renderer = pollster::block_on(Renderer::new(&window));
+
+        self.ecs.insert_resource(Input::new());
+        self.ecs.insert_resource(renderer);
+        self.ecs.insert_resource(window);
+
         self.ecs.start();
     }
 
@@ -42,40 +34,27 @@ impl WindowApp for App {
                 std::process::exit(0);
             }
             WindowEvent::Resized { width, height } => {
-                if let Some(renderer) = &mut self.renderer {
-                    renderer.resize(width, height);
-                }
+                self.ecs
+                    .get_resource_mut::<Renderer>()
+                    .resize(width, height);
             }
             WindowEvent::KeyPressed(key) => {
-                if let Some(input) = self.ecs.get_resource_mut::<Input>() {
-                    input.press_key(key);
-                }
+                self.ecs.get_resource_mut::<Input>().press_key(key);
             }
             WindowEvent::KeyReleased(key) => {
-                if let Some(input) = self.ecs.get_resource_mut::<Input>() {
-                    input.release_key(key);
-                }
+                self.ecs.get_resource_mut::<Input>().release_key(key);
             }
             WindowEvent::MouseMoved { delta_x, delta_y } => {
-                if let Some(input) = self.ecs.get_resource_mut::<Input>() {
-                    input.set_mouse_delta(delta_x, delta_y);
-                }
+                self.ecs
+                    .get_resource_mut::<Input>()
+                    .set_mouse_delta(delta_x, delta_y);
             }
             _ => {}
         }
     }
 
     fn on_update(&mut self) {
-        let renderer = self.renderer.as_ref().unwrap();
-
-        renderer.clear(0.1, 0.1, 0.15, 1.0);
-
         self.ecs.update();
-
-        renderer.swap_buffers();
-
-        if let Some(input) = self.ecs.get_resource_mut::<Input>() {
-            input.clear_frame();
-        }
+        self.ecs.get_resource_mut::<Input>().clear_frame();
     }
 }

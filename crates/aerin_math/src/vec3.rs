@@ -1,6 +1,8 @@
+use bytemuck::{Pod, Zeroable};
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
-#[derive(Debug, Copy, Clone)]
+#[repr(C)]
+#[derive(Debug, Copy, Clone, Pod, Zeroable)]
 pub struct Vec3 {
     pub x: f32,
     pub y: f32,
@@ -163,7 +165,7 @@ impl Vec3 {
 
     #[inline]
     pub const fn eq(&self, rhs: &Self) -> bool {
-        self.x == rhs.x && self.y == rhs.y && self.y == rhs.y
+        self.x == rhs.x && self.y == rhs.y && self.z == rhs.z
     }
 
     #[inline]

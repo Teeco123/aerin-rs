@@ -1,91 +1,73 @@
-use glow::{Context, FRAGMENT_SHADER, HasContext, NativeBuffer, NativeProgram, VERTEX_SHADER};
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct ProgramId(pub(crate) NativeProgram);
+use crate::Vertex;
 
 #[derive(Clone)]
 pub struct Shader {
-    id: ProgramId,
+    pipeline: wgpu::RenderPipeline,
 }
 
 impl Shader {
-    pub fn new(gl: &Context, vertex_source: &str, fragment_source: &str) -> Self {
-        unsafe {
-            let program = gl.create_program().expect("Cannot create shader program");
+    pub fn new(
+        device: &wgpu::Device,
+        wgsl_source: &str,
+        texture_format: wgpu::TextureFormat,
+        bind_group_layouts: &[Option<&wgpu::BindGroupLayout>],
+    ) -> Self {
+        let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
+            label: Some("Shader Module"),
+            source: wgpu::ShaderSource::Wgsl(wgsl_source.into()),
+        });
 
-            let vertex_shader = gl
-                .create_shader(VERTEX_SHADER)
-                .expect("Cannot create vertex shader");
-            gl.shader_source(vertex_shader, &format!("#version 410\n{vertex_source}"));
+        let render_pipeline_layout =
+            device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+                label: Some("Render Pipeline Layout"),
+                bind_group_layouts,
+                immediate_size: 0,
+            });
 
-            let fragment_shader = gl
-                .create_shader(FRAGMENT_SHADER)
-                .expect("Cannot create fragment shader");
-            gl.shader_source(fragment_shader, &format!("#version 410\n{fragment_source}"));
+        let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+            label: Some("Render Pipeline"),
+            layout: Some(&render_pipeline_layout),
+            vertex: wgpu::VertexState {
+                module: &shader_module,
+                entry_point: Some("vs_main"),
+                buffers: &[Some(Vertex::desc())],
+                compilation_options: wgpu::PipelineCompilationOptions::default(),
+            },
+            fragment: Some(wgpu::FragmentState {
+                module: &shader_module,
+                entry_point: Some("fs_main"),
+                compilation_options: wgpu::PipelineCompilationOptions::default(),
+                targets: &[Some(wgpu::ColorTargetState {
+                    blend: Some(wgpu::BlendState::REPLACE),
+                    write_mask: wgpu::ColorWrites::ALL,
+                    format: texture_format,
+                })],
+            }),
+            primitive: wgpu::PrimitiveState {
+                topology: wgpu::PrimitiveTopology::TriangleList,
+                strip_index_format: None,
+                front_face: wgpu::FrontFace::Ccw,
+                cull_mode: Some(wgpu::Face::Back),
+                polygon_mode: wgpu::PolygonMode::Fill,
+                unclipped_depth: false,
+                conservative: false,
+            },
+            depth_stencil: None,
+            multisample: wgpu::MultisampleState {
+                count: 1,
+                mask: !0,
+                alpha_to_coverage_enabled: false,
+            },
+            multiview_mask: None,
+            cache: None,
+        });
 
-            gl.compile_shader(vertex_shader);
-            if !gl.get_shader_compile_status(vertex_shader) {
-                panic!(
-                    "Vertex Shader Error: {}",
-                    gl.get_shader_info_log(vertex_shader)
-                );
-            }
-
-            gl.compile_shader(fragment_shader);
-            if !gl.get_shader_compile_status(fragment_shader) {
-                panic!(
-                    "Fragment Shader Error: {}",
-                    gl.get_shader_info_log(fragment_shader)
-                );
-            }
-
-            gl.attach_shader(program, vertex_shader);
-            gl.attach_shader(program, fragment_shader);
-            gl.link_program(program);
-
-            if !gl.get_program_link_status(program) {
-                panic!("Shader Link Error: {}", gl.get_program_info_log(program));
-            }
-
-            gl.detach_shader(program, vertex_shader);
-            gl.delete_shader(vertex_shader);
-            gl.detach_shader(program, fragment_shader);
-            gl.delete_shader(fragment_shader);
-
-            Self {
-                id: ProgramId(program),
-            }
+        Self {
+            pipeline: render_pipeline,
         }
     }
 
-    pub fn bind(&self, gl: &Context) {
-        unsafe {
-            gl.use_program(Some(self.id.0));
-        }
-    }
-
-    pub fn set_uniform_mat4(&self, gl: &Context, name: &str, val: &[f32]) {
-        unsafe {
-            let location = gl.get_uniform_location(self.id.0, name);
-            gl.uniform_matrix_4_f32_slice(location.as_ref(), false, val);
-        }
-    }
-
-    pub fn set_uniform_f32(&self, gl: &Context, name: &str, val: f32) {
-        unsafe {
-            let location = gl.get_uniform_location(self.id.0, name);
-            gl.uniform_1_f32(location.as_ref(), val);
-        }
-    }
-
-    pub fn create_ubo(gl: &Context, index: u32, size: i32) -> NativeBuffer {
-        unsafe {
-            let ubo = gl.create_buffer().expect("Failed to create UBO");
-            gl.bind_buffer(glow::UNIFORM_BUFFER, Some(ubo));
-            gl.buffer_data_size(glow::UNIFORM_BUFFER, size, glow::DYNAMIC_DRAW);
-            gl.bind_buffer_base(glow::UNIFORM_BUFFER, index, Some(ubo));
-            gl.bind_buffer(glow::UNIFORM_BUFFER, None);
-            ubo
-        }
+    pub fn bind(&self, render_pass: &mut wgpu::RenderPass) {
+        render_pass.set_pipeline(&self.pipeline);
     }
 }

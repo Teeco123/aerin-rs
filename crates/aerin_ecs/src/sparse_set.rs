@@ -1,4 +1,5 @@
 use std::any::Any;
+use std::cell::{Ref, RefCell, RefMut};
 use std::collections::HashMap;
 
 use crate::component::Component;
@@ -47,7 +48,12 @@ impl<T: Component> ComponentArray<T> {
         self.size += 1;
     }
 
-    pub fn get_component(&mut self, id: Entity) -> &mut T {
+    pub fn get_component(&self, id: Entity) -> &T {
+        let dense_index = self.sparse.get(id as usize).unwrap();
+        self.components.get(*dense_index).unwrap()
+    }
+
+    pub fn get_component_mut(&mut self, id: Entity) -> &mut T {
         let dense_index = self.sparse.get(id as usize).unwrap();
         self.components.get_mut(*dense_index).unwrap()
     }
@@ -66,7 +72,7 @@ impl<T: Component> ComponentArray<T> {
 
 pub struct ComponentManager {
     component_types: HashMap<&'static str, ComponentType>,
-    components_arrays: HashMap<&'static str, Box<dyn IComponentArray>>,
+    components_arrays: HashMap<&'static str, RefCell<Box<dyn IComponentArray>>>,
     next_component_type: ComponentType,
 }
 
@@ -86,20 +92,31 @@ impl ComponentManager {
         }
         self.component_types
             .insert(type_name, self.next_component_type);
-        self.components_arrays
-            .insert(type_name, Box::new(ComponentArray::<T>::new(32)));
+        self.components_arrays.insert(
+            type_name,
+            RefCell::new(Box::new(ComponentArray::<T>::new(32))),
+        );
         self.next_component_type += 1;
     }
 
-    pub fn insert_component<T: Component + 'static>(&mut self, id: Entity) {
-        if let Some(array) = self.get_component_array_mut::<T>() {
+    pub fn insert_component<T: Component + 'static>(&self, id: Entity) {
+        if let Some(mut array) = self.get_component_array_mut::<T>() {
             array.insert_component(id);
         }
     }
 
-    pub fn get_component<T: Component + 'static>(&mut self, id: Entity) -> Option<&mut T> {
+    pub fn get_component<T: Component + 'static>(&self, id: Entity) -> Option<Ref<'_, T>> {
+        let array = self.get_component_array::<T>()?;
+        Some(Ref::map(array, |arr| arr.get_component(id)))
+    }
+
+    pub fn get_component_mut<T: Component + 'static>(&self, id: Entity) -> Option<RefMut<'_, T>> {
         let array = self.get_component_array_mut::<T>()?;
-        Some(array.get_component(id))
+        Some(RefMut::map(array, |arr| arr.get_component_mut(id)))
+    }
+
+    pub fn get_component_type<T: Component>(&self) -> Option<&ComponentType> {
+        self.component_types.get(T::type_of())
     }
 
     pub fn has_component<T: Component + 'static>(&self, id: Entity) -> bool {
@@ -110,19 +127,22 @@ impl ComponentManager {
         }
     }
 
-    pub fn get_component_type<T: Component>(&self) -> Option<&ComponentType> {
-        self.component_types.get(T::type_of())
-    }
-
-    fn get_component_array<T: Component + 'static>(&self) -> Option<&ComponentArray<T>> {
-        let boxed = self.components_arrays.get(T::type_of())?;
-        boxed.as_any().downcast_ref::<ComponentArray<T>>()
+    fn get_component_array<T: Component + 'static>(&self) -> Option<Ref<'_, ComponentArray<T>>> {
+        let cell = self.components_arrays.get(T::type_of())?;
+        Some(Ref::map(cell.borrow(), |boxed| {
+            boxed.as_any().downcast_ref::<ComponentArray<T>>().unwrap()
+        }))
     }
 
     fn get_component_array_mut<T: Component + 'static>(
-        &mut self,
-    ) -> Option<&mut ComponentArray<T>> {
-        let boxed = self.components_arrays.get_mut(T::type_of())?;
-        boxed.as_any_mut().downcast_mut::<ComponentArray<T>>()
+        &self,
+    ) -> Option<RefMut<'_, ComponentArray<T>>> {
+        let cell = self.components_arrays.get(T::type_of())?;
+        Some(RefMut::map(cell.borrow_mut(), |boxed| {
+            boxed
+                .as_any_mut()
+                .downcast_mut::<ComponentArray<T>>()
+                .unwrap()
+        }))
     }
 }

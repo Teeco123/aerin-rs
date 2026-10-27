@@ -2,3 +2,6 @@
 name = "aerin_math"
 version.workspace = true
 edition.workspace = true
+
+[dependencies]
+bytemuck = { workspace = true, features = ["derive"] }

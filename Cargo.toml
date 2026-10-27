@@ -10,6 +10,8 @@ aerin_input = { path = "crates/aerin_input" }
 aerin_math = { path = "crates/aerin_math" }
 aerin_renderer = { path = "crates/aerin_renderer" }
 aerin_window = { path = "crates/aerin_window" }
+bytemuck = { workspace = true }
+image = { workspace = true }
 
 [dev-dependencies]
 glam = { version = "0.33" }
@@ -32,3 +34,7 @@ winit = { version = "0.30", default-features = false, features = ["rwh_06"] }
 raw-window-handle = "0.6"
 glow = "0.17"
 glutin = "0.32"
+wgpu = "30.0"
+bytemuck = "1.25"
+pollster = "1.0"
+image = { version = "0.25", default-features = false, features = ["png", "jpeg"] }

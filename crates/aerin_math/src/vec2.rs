@@ -3,7 +3,10 @@ use std::{
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign},
 };
 
-#[derive(Debug, Copy, Clone)]
+use bytemuck::{Pod, Zeroable};
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone, Pod, Zeroable)]
 pub struct Vec2 {
     pub x: f32,
     pub y: f32,
