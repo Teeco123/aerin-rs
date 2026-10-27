@@ -72,17 +72,20 @@ impl SystemTrait for TriangleSystem {
     }
     fn update(&mut self, entities: &mut [aerin_ecs::Entity], ecs: &mut aerin_ecs::ECS) {
         let mut renderer = ecs.get_resource_mut::<Renderer>();
-        let _ = renderer.render(|render_pass| {
-            for entity in entities.iter() {
-                let shader_cmp = ecs.get_component::<ShaderComponent>(*entity);
-                let mesh_cmp = ecs.get_component::<MeshComponent>(*entity);
+        let _ = renderer.render(
+            |scene_pass| {
+                for entity in entities.iter() {
+                    let shader_cmp = ecs.get_component::<ShaderComponent>(*entity);
+                    let mesh_cmp = ecs.get_component::<MeshComponent>(*entity);
 
-                if let (Some(shader), Some(mesh)) = (&shader_cmp.shader, &mesh_cmp.mesh) {
-                    shader.bind(render_pass);
-                    mesh.draw(render_pass);
+                    if let (Some(shader), Some(mesh)) = (&shader_cmp.shader, &mesh_cmp.mesh) {
+                        shader.bind(scene_pass);
+                        mesh.draw(scene_pass);
+                    }
                 }
-            }
-        });
+            },
+            |ui_pass| {},
+        );
     }
     fn fixed_update(&mut self, _entities: &mut [aerin_ecs::Entity]) {}
 }

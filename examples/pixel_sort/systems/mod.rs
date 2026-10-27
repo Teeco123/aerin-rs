@@ -140,18 +140,21 @@ impl SystemTrait for PixelSortSystem {
 
     fn update(&mut self, entities: &mut [Entity], ecs: &mut ECS) {
         let mut renderer = ecs.get_resource_mut::<Renderer>();
-        renderer.render(|render_pass| {
-            for entity in entities.iter() {
-                let comp = ecs.get_component::<QuadComponent>(*entity);
-                if let (Some(shader), Some(texture), Some(mesh)) =
-                    (&comp.shader, &comp.texture, &comp.mesh)
-                {
-                    shader.bind(render_pass);
-                    texture.bind(render_pass, 0);
-                    mesh.draw(render_pass);
+        renderer.render(
+            |scene_pass| {
+                for entity in entities.iter() {
+                    let comp = ecs.get_component::<QuadComponent>(*entity);
+                    if let (Some(shader), Some(texture), Some(mesh)) =
+                        (&comp.shader, &comp.texture, &comp.mesh)
+                    {
+                        shader.bind(scene_pass);
+                        texture.bind(scene_pass, 0);
+                        mesh.draw(scene_pass);
+                    }
                 }
-            }
-        });
+            },
+            |ui_pass| {},
+        );
     }
 
     fn fixed_update(&mut self, _entities: &mut [Entity]) {}
