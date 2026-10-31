@@ -1,4 +1,4 @@
-use crate::{StorageBuffer, Uniform};
+use crate::{StorageBuffer, Texture, Uniform};
 
 pub struct BindGroupBuilder<'a> {
     layout_entries: Vec<wgpu::BindGroupLayoutEntry>,
@@ -57,6 +57,25 @@ impl<'a> BindGroupBuilder<'a> {
         self.entries.push(wgpu::BindGroupEntry {
             binding,
             resource: storage.binding(),
+        });
+        self
+    }
+
+    pub fn add_storage_texture(mut self, texture: &'a Texture, stages: wgpu::ShaderStages) -> Self {
+        let binding = self.entries.len() as u32;
+        self.layout_entries.push(wgpu::BindGroupLayoutEntry {
+            binding,
+            visibility: stages,
+            ty: wgpu::BindingType::StorageTexture {
+                access: wgpu::StorageTextureAccess::WriteOnly,
+                format: wgpu::TextureFormat::Rgba8Unorm,
+                view_dimension: wgpu::TextureViewDimension::D2,
+            },
+            count: None,
+        });
+        self.entries.push(wgpu::BindGroupEntry {
+            binding,
+            resource: wgpu::BindingResource::TextureView(texture.view()),
         });
         self
     }

@@ -106,6 +106,10 @@ impl Texture {
         );
     }
 
+    pub fn view(&self) -> &wgpu::TextureView {
+        &self.view
+    }
+
     pub fn bind(&self, render_pass: &mut wgpu::RenderPass, index: u32) {
         render_pass.set_bind_group(index, &self.bind_group, &[]);
     }
