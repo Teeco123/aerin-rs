@@ -1,3 +1,4 @@
+pub mod bind_group;
 pub mod compute;
 pub mod mesh;
 pub mod renderer;
@@ -7,6 +8,7 @@ pub mod texture;
 pub mod uniform;
 pub mod vertex;
 
+pub use bind_group::BindGroupBuilder;
 pub use compute::Compute;
 pub use mesh::Mesh;
 pub use renderer::Renderer;

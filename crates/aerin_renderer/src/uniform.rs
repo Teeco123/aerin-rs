@@ -22,4 +22,8 @@ impl<T: bytemuck::Pod> Uniform<T> {
     pub fn write(&self, queue: &wgpu::Queue, value: &T) {
         queue.write_buffer(&self.buffer, 0, bytemuck::bytes_of(value));
     }
+
+    pub fn binding(&self) -> wgpu::BindingResource<'_> {
+        self.buffer.as_entire_binding()
+    }
 }
