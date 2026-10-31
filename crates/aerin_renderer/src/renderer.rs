@@ -99,8 +99,9 @@ impl Renderer {
         }
     }
 
-    pub fn render<S, U>(&mut self, mut scene_fn: S, mut ui_fn: U)
+    pub fn render<C, S, U>(&mut self, mut compute_fn: C, mut scene_fn: S, mut ui_fn: U)
     where
+        C: FnMut(&mut wgpu::ComputePass),
         S: FnMut(&mut wgpu::RenderPass),
         U: FnMut(&mut wgpu::RenderPass<'static>),
     {
@@ -124,6 +125,13 @@ impl Renderer {
         let mut encoder = self
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+        {
+            let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor {
+                label: Some("Compute Pass"),
+                timestamp_writes: None,
+            });
+            compute_fn(&mut cpass);
+        }
         {
             let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: None,

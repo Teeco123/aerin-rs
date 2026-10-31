@@ -11,3 +11,4 @@ pub use renderer::Renderer;
 pub use shader::Shader;
 pub use texture::Texture;
 pub use vertex::Vertex;
+pub use wgpu;
