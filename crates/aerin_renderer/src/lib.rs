@@ -11,7 +11,7 @@ pub mod vertex;
 pub use bind_group::BindGroupBuilder;
 pub use compute::Compute;
 pub use mesh::Mesh;
-pub use renderer::Renderer;
+pub use renderer::{RenderPass, Renderer};
 pub use shader::Shader;
 pub use storage_buffer::StorageBuffer;
 pub use texture::Texture;

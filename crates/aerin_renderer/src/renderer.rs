@@ -1,6 +1,33 @@
 use aerin_window::Window;
 use std::sync::Arc;
 
+pub struct RenderPass<'a> {
+    pub renderer: &'a Renderer,
+    pub encoder: &'a mut wgpu::CommandEncoder,
+    pub view: &'a wgpu::TextureView,
+}
+
+impl<'a> RenderPass<'a> {
+    pub fn begin_pass(&mut self, target_view: &wgpu::TextureView) -> wgpu::RenderPass<'_> {
+        self.encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            label: Some("Aerin Render Pass"),
+            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                view: target_view,
+                depth_slice: None,
+                resolve_target: None,
+                ops: wgpu::Operations {
+                    load: wgpu::LoadOp::Load,
+                    store: wgpu::StoreOp::Store,
+                },
+            })],
+            depth_stencil_attachment: None,
+            timestamp_writes: None,
+            occlusion_query_set: None,
+            multiview_mask: None,
+        })
+    }
+}
+
 pub struct Renderer {
     surface: wgpu::Surface<'static>,
     device: wgpu::Device,
@@ -102,7 +129,7 @@ impl Renderer {
     pub fn render<C, S, U>(&mut self, mut compute_fn: C, mut scene_fn: S, mut ui_fn: U)
     where
         C: FnMut(&mut wgpu::ComputePass),
-        S: FnMut(&mut wgpu::RenderPass),
+        S: FnMut(&mut RenderPass),
         U: FnMut(&mut wgpu::RenderPass<'static>),
     {
         let frame = match self.surface.get_current_texture() {
@@ -133,24 +160,13 @@ impl Renderer {
             compute_fn(&mut cpass);
         }
         {
-            let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-                label: None,
-                color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-                    view: &view,
-                    depth_slice: None,
-                    resolve_target: None,
-                    ops: wgpu::Operations {
-                        load: wgpu::LoadOp::Clear(wgpu::Color::GREEN),
-                        store: wgpu::StoreOp::Store,
-                    },
-                })],
-                depth_stencil_attachment: None,
-                timestamp_writes: None,
-                occlusion_query_set: None,
-                multiview_mask: None,
-            });
+            let mut ctx = RenderPass {
+                renderer: self,
+                encoder: &mut encoder,
+                view: &view,
+            };
 
-            scene_fn(&mut rpass);
+            scene_fn(&mut ctx);
         }
         {
             let mut rpass = encoder
